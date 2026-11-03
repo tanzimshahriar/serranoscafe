@@ -1,0 +1,235 @@
+---
+import Icon from './Icon.astro';
+import { orderChannels } from '../data/site';
+---
+
+<section class="order theme-ink" id="order" aria-labelledby="order-title">
+	<div class="wrap">
+		<header class="order__head">
+			<p class="eyebrow order__eyebrow" data-reveal="fade"><span>(04)</span> Order</p>
+			<h2 class="order__title" id="order-title">
+				<span data-reveal="lines">Hungry</span>
+				<span class="order__title-row">
+					<span class="order__slash" aria-hidden="true"></span>
+					<span data-reveal="lines">yet?</span>
+				</span>
+			</h2>
+			<p class="order__lede" data-reveal="fade">
+				{orderChannels.length === 4 ? 'Four' : 'Three'} ways to get it. Pick whichever gets it to you fastest.
+			</p>
+		</header>
+
+		<ul class="order__list">
+			{
+				orderChannels.map((channel, i) => (
+					<li data-reveal="fade">
+						<a
+							class="order__row"
+							href={channel.href}
+							target={channel.external ? '_blank' : undefined}
+							rel={channel.external ? 'noopener' : undefined}
+							data-cursor={channel.id === 'call' ? 'Call' : channel.id === 'visit' ? 'Map' : 'Order'}
+							data-order={channel.id}
+						>
+							<span class="mono order__num">{String(i + 1).padStart(2, '0')}</span>
+							<span class="mono order__kicker">{channel.kicker}</span>
+							<span class="order__label serif">{channel.label}</span>
+							<span class="order__detail">{channel.detail}</span>
+							<span class="order__arrow">
+								<Icon name={channel.id === 'call' ? 'phone' : channel.id === 'visit' ? 'pin' : 'arrow'} />
+							</span>
+						</a>
+					</li>
+				))
+			}
+		</ul>
+	</div>
+</section>
+
+<style>
+	.order {
+		position: relative;
+		padding: clamp(96px, 14vw, 200px) 0 clamp(80px, 10vw, 140px);
+	}
+
+	.order__head {
+		display: grid;
+		grid-template-columns: repeat(12, minmax(0, 1fr));
+		align-items: end;
+		gap: 16px 24px;
+		margin-bottom: clamp(48px, 7vw, 96px);
+	}
+
+	.order__eyebrow {
+		grid-column: 1 / -1;
+		color: color-mix(in oklab, var(--paper) 60%, transparent);
+	}
+
+	.order__eyebrow span {
+		color: var(--timber-2);
+		margin-right: 8px;
+	}
+
+	.order__title {
+		grid-column: 1 / span 9;
+		display: grid;
+		font-size: clamp(4rem, 16vw, 17rem);
+		line-height: 0.84;
+		letter-spacing: -0.05em;
+	}
+
+	.order__title-row {
+		display: flex;
+		align-items: center;
+		gap: 0.12em;
+		padding-left: 0.9em;
+	}
+
+	.order__slash {
+		width: max(2px, 0.025em);
+		height: 0.8em;
+		background: var(--timber-2);
+		transform: rotate(var(--slash));
+		flex: none;
+	}
+
+	.order__lede {
+		grid-column: 10 / -1;
+		max-width: 26ch;
+		color: color-mix(in oklab, var(--paper) 66%, transparent);
+	}
+
+	.order__list {
+		border-top: 1px solid var(--line);
+	}
+
+	.order__row {
+		position: relative;
+		display: grid;
+		grid-template-columns: 3rem 10rem minmax(0, 1fr) minmax(12rem, 18rem) auto;
+		align-items: center;
+		gap: 16px 24px;
+		padding: clamp(22px, 3vw, 40px) 0;
+		border-bottom: 1px solid var(--line);
+		isolation: isolate;
+		transition: color 0.5s var(--ease-out);
+	}
+
+	.order__row::before {
+		content: '';
+		position: absolute;
+		inset: 0 calc(var(--gutter) * -1);
+		z-index: -1;
+		background: var(--paper);
+		clip-path: polygon(0 0, 0 0, -12% 100%, -12% 100%);
+		transition: clip-path 0.8s var(--ease-out);
+	}
+
+	.order__row:hover,
+	.order__row:focus-visible {
+		color: var(--ink);
+	}
+
+	.order__row:hover::before,
+	.order__row:focus-visible::before {
+		clip-path: polygon(0 0, 112% 0, 100% 100%, -12% 100%);
+	}
+
+	.order__num,
+	.order__kicker {
+		font-size: 0.74rem;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+	}
+
+	.order__num {
+		color: var(--timber-2);
+	}
+
+	.order__row:hover .order__num {
+		color: var(--timber-text);
+	}
+
+	.order__kicker {
+		color: color-mix(in oklab, currentColor 60%, transparent);
+	}
+
+	.order__label {
+		font-size: clamp(2.2rem, 1.2rem + 3.4vw, 5rem);
+		line-height: 0.95;
+		letter-spacing: -0.035em;
+		text-wrap: balance;
+		transition: transform 0.7s var(--ease-out);
+	}
+
+	.order__row[data-order='call'] .order__label {
+		white-space: nowrap;
+	}
+
+	.order__row:hover .order__label {
+		transform: translateX(16px);
+	}
+
+	.order__detail {
+		font-size: 0.95rem;
+		color: color-mix(in oklab, currentColor 64%, transparent);
+		max-width: 32ch;
+	}
+
+	.order__arrow {
+		display: grid;
+		place-items: center;
+		width: clamp(52px, 5vw, 76px);
+		height: clamp(52px, 5vw, 76px);
+		border-radius: 50%;
+		box-shadow: inset 0 0 0 1px var(--line);
+		font-size: 1.4rem;
+		transition:
+			background-color 0.5s var(--ease-out),
+			transform 0.7s var(--ease-out);
+	}
+
+	.order__row:hover .order__arrow {
+		background: var(--timber-2);
+		box-shadow: none;
+		transform: rotate(-12deg) scale(1.06);
+	}
+
+	@media (max-width: 960px) {
+		.order__title,
+		.order__lede {
+			grid-column: 1 / -1;
+		}
+
+		.order__row {
+			grid-template-columns: 2.4rem 1fr auto;
+			grid-template-areas:
+				'num kicker arrow'
+				'label label arrow'
+				'detail detail detail';
+			gap: 6px 14px;
+		}
+
+		.order__num {
+			grid-area: num;
+		}
+
+		.order__kicker {
+			grid-area: kicker;
+		}
+
+		.order__label {
+			grid-area: label;
+			font-size: clamp(2.2rem, 9vw, 4rem);
+		}
+
+		.order__detail {
+			grid-area: detail;
+			margin-top: 6px;
+		}
+
+		.order__arrow {
+			grid-area: arrow;
+		}
+	}
+</style>

@@ -1,0 +1,177 @@
+---
+import { Font, getImage } from 'astro:assets';
+import '../styles/global.css';
+import Nav from '../components/Nav.astro';
+import ActionBar from '../components/ActionBar.astro';
+import Preloader from '../components/Preloader.astro';
+import { site } from '../data/site';
+import { menu } from '../data/menu';
+import { photos } from '../data/photos';
+
+interface Props {
+	title?: string;
+	description?: string;
+}
+
+const {
+	title = `${site.name} — 100% Halal Brunch & Coffee in Tarneit`,
+	description = site.description,
+} = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site ?? site.url).href;
+
+const og = await getImage({
+	src: photos.smashedAvo.src,
+	width: 1200,
+	height: 630,
+	fit: 'cover',
+	position: 'center',
+	format: 'jpg',
+	quality: 82,
+});
+const ogUrl = new URL(og.src, Astro.site ?? site.url).href;
+
+const dayCodes = {
+	Monday: 'Mo',
+	Tuesday: 'Tu',
+	Wednesday: 'We',
+	Thursday: 'Th',
+	Friday: 'Fr',
+	Saturday: 'Sa',
+	Sunday: 'Su',
+} as const;
+
+const structuredData = {
+	'@context': 'https://schema.org',
+	'@type': 'CafeOrCoffeeShop',
+	'@id': `${site.url}/#cafe`,
+	name: site.name,
+	description: site.description,
+	url: site.url,
+	image: ogUrl,
+	telephone: site.phone.e164,
+	priceRange: '$$',
+	servesCuisine: ['Cafe', 'Brunch', 'Halal', 'Coffee'],
+	address: {
+		'@type': 'PostalAddress',
+		streetAddress: `${site.address.street}, ${site.address.centre}`,
+		addressLocality: site.address.suburb,
+		addressRegion: site.address.state,
+		postalCode: site.address.postcode,
+		addressCountry: site.address.country,
+	},
+	geo: { '@type': 'GeoCoordinates', latitude: site.geo.lat, longitude: site.geo.lng },
+	hasMap: site.mapsUrl,
+	openingHours: site.hours.filter((h) => h.open).map((h) => `${dayCodes[h.day]} ${h.open}-${h.close}`),
+	openingHoursSpecification: site.hours
+		.filter((h) => h.open)
+		.map((h) => ({
+			'@type': 'OpeningHoursSpecification',
+			dayOfWeek: `https://schema.org/${h.day}`,
+			opens: h.open,
+			closes: h.close,
+		})),
+	sameAs: [site.links.instagram, site.links.facebook, site.links.uberEats].filter(Boolean),
+	potentialAction: {
+		'@type': 'OrderAction',
+		target: { '@type': 'EntryPoint', urlTemplate: site.links.uberEats, inLanguage: 'en-AU' },
+	},
+	hasMenu: {
+		'@type': 'Menu',
+		name: 'Menu',
+		url: `${site.url}/#menu`,
+		hasMenuSection: menu.map((section) => ({
+			'@type': 'MenuSection',
+			name: section.title,
+			hasMenuItem: section.items.map((item) => ({
+				'@type': 'MenuItem',
+				name: item.name,
+				...(item.description && { description: item.description }),
+				...(item.tags?.includes('V') && { suitableForDiet: 'https://schema.org/VegetarianDiet' }),
+				offers: { '@type': 'Offer', price: item.price.toFixed(2), priceCurrency: 'AUD' },
+			})),
+		})),
+	},
+};
+---
+
+<!doctype html>
+<html lang="en-AU">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+		<title>{title}</title>
+		<meta name="description" content={description} />
+		<link rel="canonical" href={canonical} />
+		<meta name="theme-color" content="#14110e" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="sitemap" href="/sitemap-index.xml" />
+
+		<meta property="og:type" content="restaurant" />
+		<meta property="og:site_name" content={site.name} />
+		<meta property="og:title" content={title} />
+		<meta property="og:description" content={description} />
+		<meta property="og:url" content={canonical} />
+		<meta property="og:image" content={ogUrl} />
+		<meta property="og:image:width" content="1200" />
+		<meta property="og:image:height" content="630" />
+		<meta property="og:locale" content="en_AU" />
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="generator" content={Astro.generator} />
+
+		<Font cssVariable="--font-display" preload />
+		<Font cssVariable="--font-body" preload={[{ weight: '400', style: 'normal' }]} />
+		<Font cssVariable="--font-mono" />
+
+		<script is:inline>
+			(function () {
+				var d = document.documentElement;
+				d.classList.add('js');
+				if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) d.classList.add('reduced');
+				var seen = false;
+				try {
+					seen = sessionStorage.getItem('serranos:intro') === '1';
+					sessionStorage.setItem('serranos:intro', '1');
+				} catch (e) {}
+				if (!seen && !d.classList.contains('reduced')) d.classList.add('show-loader');
+				// Pinned sections add height after boot, so a restored or #hash scroll lands mid-page.
+				// Start at the top and let the main script travel to any #hash once layout settles.
+				var hash = '';
+				if (!d.classList.contains('reduced')) {
+					if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+					hash = location.hash;
+					if (hash) history.replaceState(null, '', location.pathname + location.search);
+					window.__serranosHash = hash;
+				}
+				// If the main script never boots, fall back to the static, fully visible page.
+				setTimeout(function () {
+					if (window.__serranos) return;
+					d.classList.add('reduced');
+					if (hash) location.hash = hash;
+				}, 4000);
+			})();
+		</script>
+
+		<script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+	</head>
+	<body>
+		<a class="skip-link" href="#menu">Skip to the menu</a>
+		<Preloader />
+		<Nav />
+		<main id="top">
+			<slot />
+		</main>
+		<slot name="footer" />
+		<ActionBar />
+
+		<div class="cursor" aria-hidden="true">
+			<span class="cursor__dot"></span>
+			<span class="cursor__label"></span>
+		</div>
+		<div class="grain" aria-hidden="true"></div>
+
+		<script>
+			import '../scripts/main';
+		</script>
+	</body>
+</html>

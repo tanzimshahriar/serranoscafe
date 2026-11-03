@@ -1,0 +1,129 @@
+---
+import { site } from '../data/site';
+
+const statement =
+	'Turkey bacon instead of pork. Brisket slow-cooked until it gives up. Sujuk in the shakshuka, Biscoff on the hotcakes, and Roasting Warehouse beans in the grinder. Everything here is 100% halal — so the whole table can order anything.';
+
+const facts = [
+	{ value: '100%', label: 'Halal, every plate' },
+	{ value: site.rating.value, label: `Stars from ${site.rating.count} ${site.rating.source} ratings` },
+	{ value: '7', label: 'Days a week, breakfast to lunch' },
+];
+---
+
+<section class="story" id="story" aria-labelledby="story-title">
+	<div class="wrap story__grid">
+		<p class="story__label eyebrow" data-reveal="fade">
+			<span class="story__index">(01)</span> The short version
+		</p>
+
+		<h2 class="sr-only" id="story-title">About Serranos Cafe</h2>
+		<p class="story__statement serif" data-scrub-words>{statement}</p>
+
+		<dl class="story__facts">
+			{
+				facts.map((fact) => (
+					<div class="story__fact" data-reveal="fade">
+						<dt class="story__fact-label mono">{fact.label}</dt>
+						<dd class="story__value serif">{fact.value}</dd>
+					</div>
+				))
+			}
+		</dl>
+	</div>
+</section>
+
+<style>
+	.story {
+		padding: clamp(96px, 16vw, 220px) 0 clamp(80px, 12vw, 160px);
+	}
+
+	.story__grid {
+		display: grid;
+		grid-template-columns: repeat(12, minmax(0, 1fr));
+		gap: clamp(28px, 4vw, 56px) 24px;
+	}
+
+	.story__label {
+		grid-column: 1 / span 3;
+		color: var(--muted);
+	}
+
+	.story__index {
+		color: var(--timber-text);
+		margin-right: 8px;
+	}
+
+	.story__statement {
+		grid-column: 4 / -1;
+		font-size: clamp(1.9rem, 1.1rem + 3.1vw, 4.6rem);
+		line-height: 1.04;
+		letter-spacing: -0.025em;
+		text-indent: 2.2em;
+	}
+
+	/* Starts at half strength: still a clear reveal, and still readable (3.4:1) before it lands. */
+	.story__statement :global(.scrub-word) {
+		opacity: 0.5;
+		transition: opacity 0.2s linear;
+	}
+
+	:global(html:not(.js)) .story__statement :global(.scrub-word),
+	:global(.reduced) .story__statement :global(.scrub-word) {
+		opacity: 1;
+	}
+
+	.story__facts {
+		grid-column: 4 / -1;
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 24px;
+		margin-top: clamp(24px, 5vw, 72px);
+		border-top: 1px solid var(--line);
+		padding-top: 24px;
+	}
+
+	.story__fact {
+		display: grid;
+		gap: 8px;
+		margin: 0;
+	}
+
+	.story__value {
+		order: -1;
+		font-size: var(--step-4);
+		line-height: 0.9;
+		margin: 0;
+	}
+
+	.story__fact-label {
+		font-size: 0.78rem;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+		color: var(--muted);
+		margin: 0;
+		max-width: 22ch;
+	}
+
+	@media (max-width: 860px) {
+		.story__label,
+		.story__statement,
+		.story__facts {
+			grid-column: 1 / -1;
+		}
+
+		.story__statement {
+			text-indent: 0;
+		}
+
+		.story__facts {
+			grid-template-columns: 1fr;
+			gap: 20px;
+		}
+
+		.story__fact {
+			grid-template-columns: 6.5rem 1fr;
+			align-items: end;
+		}
+	}
+</style>

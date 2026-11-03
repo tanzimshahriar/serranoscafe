@@ -1,0 +1,34 @@
+---
+interface Props {
+	name: 'arrow' | 'arrow-down' | 'phone' | 'pin' | 'instagram' | 'facebook' | 'bag' | 'clock' | 'menu';
+	class?: string;
+}
+
+const { name, class: className } = Astro.props;
+
+const paths: Record<Props['name'], string> = {
+	arrow: '<path d="M7 17 17 7M8 7h9v9"/>',
+	'arrow-down': '<path d="M12 4v16M5 13l7 7 7-7"/>',
+	phone:
+		'<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/>',
+	pin: '<path d="M12 21s-7-6.1-7-11.5A7 7 0 0 1 19 9.5C19 14.9 12 21 12 21Z"/><circle cx="12" cy="9.5" r="2.5"/>',
+	instagram:
+		'<rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6" fill="currentColor"/>',
+	facebook: '<path d="M14 21v-7.5h2.6l.4-3H14V8.6c0-.9.3-1.5 1.6-1.5H17V4.4A20 20 0 0 0 14.8 4C12.6 4 11 5.4 11 7.9v2.6H8.5v3H11V21"/>',
+	bag: '<path d="M5 8h14l-1 13H6L5 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/>',
+	clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+	menu: '<path d="M4 6h16M4 12h10M4 18h13"/><path d="m17 15 3-6"/>',
+};
+---
+
+<svg
+	class:list={['btn__icon', name === 'arrow' && 'btn__icon--arrow', className]}
+	viewBox="0 0 24 24"
+	fill="none"
+	stroke="currentColor"
+	stroke-width="1.8"
+	stroke-linecap="round"
+	stroke-linejoin="round"
+	aria-hidden="true"
+	set:html={paths[name]}
+/>

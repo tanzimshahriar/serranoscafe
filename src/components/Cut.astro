@@ -1,0 +1,163 @@
+---
+import { Picture } from 'astro:assets';
+import { photos } from '../data/photos';
+
+const photo = photos.smashedAvo;
+---
+
+<section class="cut" data-cut aria-label="Smashed avo, plated properly">
+	<div class="cut__stage" data-cut-stage>
+		<span class="cut__line" aria-hidden="true" data-cut-line></span>
+
+		<p class="cut__word cut__word--l serif" data-cut-word="-1" aria-hidden="true">Plated</p>
+		<p class="cut__word cut__word--r serif" data-cut-word="1" aria-hidden="true">properly.</p>
+
+		<div class="cut__window" data-cut-window>
+			<div class="cut__img" data-cut-img>
+				<Picture
+					src={photo.src}
+					alt={photo.alt}
+					widths={[640, 960, 1280, 1600, 2000]}
+					sizes="100vw"
+					formats={['avif', 'webp']}
+					style={`object-position:${photo.focus}`}
+				/>
+			</div>
+			<div class="cut__caption wrap" data-cut-caption>
+				<p class="cut__title serif">Smashed avo,<br />the way it should be.</p>
+				<p class="mono cut__meta">
+					<span>Fig. 02</span>
+					<span>Poached eggs · sourdough · feta · dukkah — $29</span>
+				</p>
+			</div>
+		</div>
+	</div>
+</section>
+
+<style>
+	.cut {
+		position: relative;
+	}
+
+	.cut__stage {
+		--off: calc(100svh * 0.4663);
+		--p: 1;
+		position: relative;
+		height: 100svh;
+		min-height: 560px;
+		overflow: hidden;
+		isolation: isolate;
+	}
+
+	.cut__line {
+		position: absolute;
+		top: -8%;
+		bottom: -8%;
+		left: 50%;
+		width: 1.5px;
+		background: var(--ink);
+		transform: rotate(var(--slash));
+		opacity: calc(1 - var(--p) * 4);
+	}
+
+	.cut__word {
+		position: absolute;
+		top: 50%;
+		z-index: 0;
+		font-size: clamp(3rem, 11vw, 12rem);
+		line-height: 1;
+		letter-spacing: -0.04em;
+		white-space: nowrap;
+	}
+
+	.cut__word--l {
+		right: calc(50% + 0.35em);
+		translate: 0 -100%;
+	}
+
+	.cut__word--r {
+		left: calc(50% + 0.1em);
+		translate: 0 10%;
+	}
+
+	.cut__window {
+		--w: calc(var(--p) * (50% + var(--off) / 2 + 2%));
+		position: absolute;
+		inset: 0;
+		z-index: 1;
+		background: var(--ink);
+		color: var(--paper);
+		clip-path: polygon(
+			calc(50% + var(--off) / 2 - var(--w)) 0,
+			calc(50% + var(--off) / 2 + var(--w)) 0,
+			calc(50% - var(--off) / 2 + var(--w)) 100%,
+			calc(50% - var(--off) / 2 - var(--w)) 100%
+		);
+	}
+
+	.cut__img {
+		position: absolute;
+		inset: 0;
+	}
+
+	.cut__img :global(picture),
+	.cut__img :global(img) {
+		width: 100%;
+		height: 100%;
+	}
+
+	.cut__img :global(img) {
+		object-fit: cover;
+	}
+
+	.cut__img::after {
+		content: '';
+		position: absolute;
+		inset: 0;
+		background: linear-gradient(0deg, rgb(20 17 14 / 0.72), rgb(20 17 14 / 0) 46%);
+	}
+
+	.cut__caption {
+		position: absolute;
+		inset: auto 0 clamp(28px, 6vh, 64px);
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: space-between;
+		align-items: end;
+		gap: 16px 40px;
+	}
+
+	.cut__title {
+		font-size: var(--step-3);
+		line-height: 1;
+		letter-spacing: -0.02em;
+	}
+
+	.cut__meta {
+		display: grid;
+		gap: 4px;
+		font-size: 0.75rem;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+		text-align: right;
+		color: color-mix(in oklab, var(--paper) 78%, transparent);
+	}
+
+	@media (max-width: 860px) {
+		.cut__word--l {
+			right: auto;
+			left: var(--gutter);
+			translate: 0 -160%;
+		}
+
+		.cut__word--r {
+			left: auto;
+			right: var(--gutter);
+			translate: 0 60%;
+		}
+
+		.cut__meta {
+			text-align: left;
+		}
+	}
+</style>

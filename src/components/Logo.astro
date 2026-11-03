@@ -1,0 +1,45 @@
+---
+/**
+ * The serranos / cafe wordmark, rebuilt in type so it stays crisp at any size.
+ * Swap in the original vector from the owner when you have it.
+ */
+interface Props {
+	class?: string;
+	animate?: boolean;
+}
+
+const { class: className, animate = false } = Astro.props;
+---
+
+<span class:list={['logo', className]} role="img" aria-label="Serranos Cafe" data-logo={animate ? 'animate' : undefined}>
+	<span class="logo__word" aria-hidden="true">serranos</span>
+	<span class="logo__slash" aria-hidden="true"></span>
+	<span class="logo__word" aria-hidden="true">cafe</span>
+</span>
+
+<style>
+	.logo {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.2em;
+		font-family: var(--font-display);
+		font-size: 1.35rem;
+		line-height: 1;
+		letter-spacing: -0.015em;
+		white-space: nowrap;
+	}
+
+	.logo__word {
+		display: inline-block;
+		padding-bottom: 0.08em;
+	}
+
+	.logo__slash {
+		display: inline-block;
+		width: max(1px, 0.05em);
+		height: 1.55em;
+		background: currentColor;
+		transform: rotate(var(--slash));
+		transform-origin: 50% 50%;
+	}
+</style>

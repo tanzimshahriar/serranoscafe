@@ -1,0 +1,88 @@
+---
+interface Props {
+	items: string[];
+	tone?: 'ink' | 'timber';
+	tilt?: number;
+	reverse?: boolean;
+}
+
+const { items, tone = 'ink', tilt = -2.4, reverse = false } = Astro.props;
+// Repeat enough to cover ultra-wide screens, then once more so the loop is seamless.
+const run = [...items, ...items, ...items];
+---
+
+<div class:list={['marquee', `theme-${tone}`]} style={`--tilt:${tilt}deg`} data-marquee data-direction={reverse ? -1 : 1}>
+	<p class="sr-only">{items.join(', ')}</p>
+	<div class="marquee__track" aria-hidden="true" data-marquee-track>
+		{
+			[0, 1].map(() => (
+				<div class="marquee__group">
+					{run.map((item) => (
+						<span class="marquee__item">
+							{item}
+							<i class="marquee__slash" />
+						</span>
+					))}
+				</div>
+			))
+		}
+	</div>
+</div>
+
+<style>
+	.marquee {
+		position: relative;
+		z-index: 5;
+		width: 110%;
+		margin-left: -5%;
+		padding: clamp(14px, 2vw, 26px) 0;
+		overflow: hidden;
+		transform: rotate(var(--tilt));
+		user-select: none;
+	}
+
+	.marquee__track {
+		display: flex;
+		width: max-content;
+		will-change: transform;
+	}
+
+	.marquee__group {
+		display: flex;
+		flex: none;
+	}
+
+	.marquee__item {
+		display: inline-flex;
+		align-items: center;
+		font-family: var(--font-display);
+		font-size: clamp(1.8rem, 4.2vw, 4.2rem);
+		line-height: 1;
+		letter-spacing: -0.02em;
+		white-space: nowrap;
+	}
+
+	.marquee__slash {
+		display: inline-block;
+		width: 2px;
+		height: 1em;
+		margin: 0 0.55em;
+		background: var(--timber-2);
+		transform: rotate(var(--slash));
+	}
+
+	.theme-timber .marquee__slash {
+		background: var(--ink);
+	}
+
+	/* Without JS (or with reduced motion) the band simply drifts on CSS. */
+	:global(html:not(.js)) .marquee__track {
+		animation: marquee-drift 40s linear infinite;
+	}
+
+	@keyframes marquee-drift {
+		to {
+			transform: translateX(-50%);
+		}
+	}
+</style>

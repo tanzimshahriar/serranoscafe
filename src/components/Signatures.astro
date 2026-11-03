@@ -1,0 +1,374 @@
+---
+import { Picture } from 'astro:assets';
+import Icon from './Icon.astro';
+import { photos, type PhotoKey } from '../data/photos';
+import { menu, formatPrice } from '../data/menu';
+
+type Card =
+	| { kind: 'photo'; item: string; photo: PhotoKey; note: string }
+	| { kind: 'type'; item: string; lines: [string, string]; note: string; tone: 'timber' | 'ink' };
+
+const cards: Card[] = [
+	{ kind: 'photo', item: 'Hotcakes', photo: 'biscoffHotcakes', note: 'Biscoff, Nutella or pistachio — your call.' },
+	{
+		kind: 'type',
+		item: 'Eggs Benny',
+		lines: ['Eggs', 'Benny'],
+		note: 'Swap the ham for slow-cooked beef brisket. You will not go back.',
+		tone: 'timber',
+	},
+	{ kind: 'photo', item: 'Banana Iced Chocolate', photo: 'bananaIcedChoc', note: 'Topped with banana cold foam.' },
+	{
+		kind: 'type',
+		item: 'Shakshuka',
+		lines: ['Shak', 'shuka'],
+		note: 'Spiced tomato and pepper, sujuk and feta, with toast for mopping.',
+		tone: 'ink',
+	},
+	{ kind: 'photo', item: 'Oat Maple Iced Latte', photo: 'oatMapleLatte', note: 'New on the menu this year.' },
+	{ kind: 'photo', item: 'Smoothies', photo: 'smoothies', note: 'Strawberry, banana, mango. Smoothie season is open.' },
+];
+
+const allItems = menu.flatMap((section) => section.items);
+const priceOf = (name: string) => {
+	const item = allItems.find((i) => i.name === name);
+	return item ? formatPrice(item.price) : '';
+};
+---
+
+<section class="sig theme-ink" id="signatures" aria-labelledby="sig-title" data-sig>
+	<div class="sig__pin" data-sig-pin>
+		<header class="sig__head wrap">
+			<p class="eyebrow sig__eyebrow" data-reveal="fade"><span>(02)</span> Signatures</p>
+			<h2 class="sig__title" id="sig-title" data-reveal="lines">The ones people cross the West for.</h2>
+			<p class="sig__hint mono" aria-hidden="true">
+				<span class="sig__hint-desktop">Keep scrolling</span><span class="sig__hint-static">Scroll sideways</span><span
+					class="sig__hint-touch">Swipe</span
+				>
+				<span class="sig__progress"><span data-sig-progress></span></span>
+			</p>
+		</header>
+
+		<div class="sig__viewport" data-sig-viewport>
+			<ol class="sig__track" data-sig-track>
+				{
+					cards.map((card, i) => (
+						<li class:list={['sig__card', `sig__card--${card.kind}`, card.kind === 'type' && `theme-${card.tone}`]} data-cursor="Taste">
+							{card.kind === 'photo' ? (
+								<div class="sig__media">
+									<Picture
+										src={photos[card.photo].src}
+										alt={photos[card.photo].alt}
+										widths={[480, 720, 960]}
+										sizes="(max-width: 860px) 78vw, 40vh"
+										formats={['avif', 'webp']}
+										style={`object-position:${photos[card.photo].focus}`}
+										data-sig-img
+									/>
+								</div>
+							) : (
+								<div class="sig__type serif" aria-hidden="true">
+									<span>{card.lines[0]}</span>
+									<i class="sig__type-slash" />
+									<span>{card.lines[1]}</span>
+								</div>
+							)}
+							<div class="sig__meta">
+								<span class="mono sig__num">{String(i + 1).padStart(2, '0')}</span>
+								<h3 class="sig__name">{card.item}</h3>
+								<span class="mono sig__price">${priceOf(card.item)}</span>
+								<p class="sig__note">{card.note}</p>
+							</div>
+						</li>
+					))
+				}
+				<li class="sig__card sig__card--end">
+					<a href="#menu" class="sig__end" data-cursor="Menu">
+						<span class="serif">And the rest of the menu</span>
+						<span class="sig__end-arrow"><Icon name="arrow-down" /></span>
+					</a>
+				</li>
+			</ol>
+		</div>
+	</div>
+</section>
+
+<style>
+	.sig {
+		position: relative;
+		z-index: 1;
+	}
+
+	.sig__pin {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		gap: clamp(20px, 3.5vh, 40px);
+		min-height: 100svh;
+		padding: clamp(84px, 11vh, 120px) 0 clamp(24px, 4vh, 48px);
+		overflow: hidden;
+	}
+
+	.sig__head {
+		display: grid;
+		grid-template-columns: repeat(12, minmax(0, 1fr));
+		align-items: end;
+		gap: 16px 24px;
+	}
+
+	.sig__eyebrow {
+		grid-column: 1 / span 3;
+		color: color-mix(in oklab, var(--paper) 60%, transparent);
+	}
+
+	.sig__eyebrow span {
+		color: var(--timber-2);
+		margin-right: 8px;
+	}
+
+	.sig__title {
+		grid-column: 4 / span 7;
+		font-size: clamp(2.4rem, 1.2rem + 3.4vw, 5rem);
+	}
+
+	.sig__hint {
+		grid-column: 11 / -1;
+		justify-self: end;
+		display: grid;
+		gap: 10px;
+		font-size: 0.72rem;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		color: color-mix(in oklab, var(--paper) 60%, transparent);
+	}
+
+	.sig__hint-touch,
+	.sig__hint-static {
+		display: none;
+	}
+
+	/* Without the pin (reduced motion, no JS) the row scrolls natively. */
+	.sig:not(.is-pinned) .sig__hint-desktop {
+		display: none;
+	}
+
+	.sig:not(.is-pinned) .sig__hint-static {
+		display: inline;
+	}
+
+	.sig__progress {
+		display: block;
+		width: 120px;
+		height: 1.5px;
+		background: var(--line);
+		overflow: hidden;
+	}
+
+	.sig__progress span {
+		display: block;
+		height: 100%;
+		background: var(--timber-2);
+		transform: scaleX(0);
+		transform-origin: 0 50%;
+	}
+
+	.sig__viewport {
+		overflow-x: auto;
+		overscroll-behavior-x: contain;
+		scroll-snap-type: x mandatory;
+		scrollbar-width: none;
+		padding-inline: var(--gutter);
+	}
+
+	.sig__viewport::-webkit-scrollbar {
+		display: none;
+	}
+
+	.sig__track {
+		--card-h: clamp(280px, calc(100svh - 400px), 600px);
+		display: flex;
+		gap: clamp(16px, 2vw, 32px);
+		width: max-content;
+		will-change: transform;
+	}
+
+	.sig__card {
+		position: relative;
+		flex: none;
+		display: grid;
+		grid-template-rows: var(--card-h) auto;
+		gap: 16px;
+		width: calc(var(--card-h) * 0.74);
+		scroll-snap-align: start;
+	}
+
+	.sig__media,
+	.sig__type {
+		position: relative;
+		overflow: hidden;
+		border-radius: 2px;
+	}
+
+	.sig__media :global(picture),
+	.sig__media :global(img) {
+		width: 100%;
+		height: 100%;
+	}
+
+	.sig__media :global(img) {
+		object-fit: cover;
+		scale: 1.16;
+		transition: scale 1.2s var(--ease-out);
+	}
+
+	.sig__card:hover .sig__media :global(img) {
+		scale: 1.24;
+	}
+
+	.sig__type {
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		padding: 28px;
+		background: var(--bg);
+		color: var(--fg);
+		font-size: clamp(3rem, 6.4vh, 5.6rem);
+		line-height: 0.9;
+		letter-spacing: -0.035em;
+	}
+
+	.sig__card--type.theme-ink .sig__type {
+		box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--paper) 18%, transparent);
+	}
+
+	.sig__type span:last-child {
+		align-self: flex-end;
+		text-align: right;
+	}
+
+	.sig__type-slash {
+		align-self: center;
+		width: 2px;
+		height: 38%;
+		background: currentColor;
+		transform: rotate(var(--slash));
+		transition: transform 0.9s var(--ease-out);
+	}
+
+	.sig__card:hover .sig__type-slash {
+		transform: rotate(calc(var(--slash) + 180deg));
+	}
+
+	.sig__card.theme-timber,
+	.sig__card.theme-ink {
+		background: transparent;
+		color: var(--paper);
+	}
+
+	.sig__meta {
+		display: grid;
+		grid-template-columns: auto 1fr auto;
+		align-items: baseline;
+		gap: 4px 14px;
+	}
+
+	.sig__num,
+	.sig__price {
+		font-size: 0.78rem;
+		letter-spacing: 0.06em;
+		color: var(--timber-2);
+	}
+
+	.sig__name {
+		font-size: var(--step-1);
+		line-height: 1.1;
+		letter-spacing: -0.01em;
+	}
+
+	.sig__note {
+		grid-column: 2 / -1;
+		font-size: 0.92rem;
+		color: color-mix(in oklab, var(--paper) 62%, transparent);
+		max-width: 34ch;
+	}
+
+	.sig__card--end {
+		grid-template-rows: var(--card-h);
+		width: calc(var(--card-h) * 0.62);
+	}
+
+	.sig__end {
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		padding: 28px;
+		border: 1px solid var(--line);
+		font-size: var(--step-3);
+		line-height: 0.95;
+		transition:
+			background-color 0.5s var(--ease-out),
+			color 0.5s var(--ease-out);
+	}
+
+	.sig__end:hover {
+		background: var(--paper);
+		color: var(--ink);
+	}
+
+	.sig__end-arrow {
+		align-self: flex-end;
+		display: grid;
+		place-items: center;
+		width: 72px;
+		height: 72px;
+		border-radius: 50%;
+		background: var(--timber-2);
+		color: var(--ink);
+		font-size: 1.6rem;
+	}
+
+	/* When JS pins the section, the track is driven by scroll instead of swipe. */
+	:global(.js) .sig.is-pinned .sig__viewport {
+		overflow: visible;
+		scroll-snap-type: none;
+	}
+
+	@media (max-width: 860px) {
+		.sig__eyebrow,
+		.sig__title {
+			grid-column: 1 / -1;
+		}
+
+		.sig__hint {
+			grid-column: 1 / -1;
+			justify-self: start;
+			grid-auto-flow: column;
+			align-items: center;
+		}
+
+		.sig__hint-desktop,
+		.sig .sig__hint-static {
+			display: none;
+		}
+
+		.sig__hint-touch {
+			display: inline;
+		}
+
+		.sig__track {
+			--card-h: min(104vw, 480px);
+		}
+
+		.sig__card {
+			width: min(76vw, 360px);
+		}
+
+		.sig__card--end {
+			width: min(60vw, 280px);
+		}
+
+		.sig__viewport {
+			scroll-padding-inline: var(--gutter);
+		}
+	}
+</style>

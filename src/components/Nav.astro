@@ -1,0 +1,300 @@
+---
+import Logo from './Logo.astro';
+import Icon from './Icon.astro';
+import { site, formatTime } from '../data/site';
+
+const links = [
+	{ href: '#menu', label: 'Menu' },
+	{ href: '#signatures', label: 'Signatures' },
+	{ href: '#order', label: 'Order' },
+	{ href: '#visit', label: 'Visit' },
+];
+---
+
+<header class="nav" data-nav>
+	<div class="nav__bar">
+		<a href="#top" class="nav__logo">
+			<Logo />
+			<span class="sr-only">, back to top</span>
+		</a>
+
+		<nav class="nav__links" aria-label="Primary">
+			{
+				links.map((link) => (
+					<a href={link.href} class="nav__link" data-hover>
+						<span data-text={link.label}>{link.label}</span>
+					</a>
+				))
+			}
+		</nav>
+
+		<div class="nav__right">
+			<p class="nav__status mono" aria-live="polite">
+				<span class="dot" data-open-dot></span>
+				<span data-open-label>Tarneit Gardens</span>
+			</p>
+			<a class="btn nav__cta" href={site.links.uberEats} target="_blank" rel="noopener" data-magnetic data-cursor="Order">
+				Order online <Icon name="arrow" />
+			</a>
+			<button class="nav__burger" type="button" aria-expanded="false" aria-controls="nav-sheet" data-burger>
+				<span class="sr-only">Open menu</span>
+				<span class="nav__burger-line" aria-hidden="true"></span>
+				<span class="nav__burger-line" aria-hidden="true"></span>
+			</button>
+		</div>
+	</div>
+
+	<div class="sheet theme-ink" id="nav-sheet" data-sheet hidden>
+		<nav class="sheet__links" aria-label="Mobile">
+			{
+				links.map((link, i) => (
+					<a href={link.href} class="sheet__link" data-sheet-link>
+						<span class="mono sheet__num">0{i + 1}</span>
+						<span>{link.label}</span>
+					</a>
+				))
+			}
+		</nav>
+		<div class="sheet__foot">
+			<p class="mono sheet__hours">
+				{site.hours[0].day.slice(0, 3)}–{site.hours[4].day.slice(0, 3)} {formatTime(site.hours[0].open)}–{formatTime(site.hours[0].close)}
+				<br />
+				Sat {formatTime(site.hours[5].open)}–{formatTime(site.hours[5].close)} · Sun {formatTime(site.hours[6].open)}–{formatTime(site.hours[6].close)}
+			</p>
+			<div class="sheet__ctas">
+				<a class="btn btn--light" href={site.links.uberEats} target="_blank" rel="noopener">Order on Uber Eats <Icon name="arrow" /></a>
+				<a class="btn btn--ghost" href={site.phone.href}><Icon name="phone" /> {site.phone.display}</a>
+			</div>
+		</div>
+	</div>
+</header>
+
+<style>
+	.nav {
+		position: fixed;
+		inset: 0 0 auto;
+		z-index: 800;
+		pointer-events: none;
+	}
+
+	.nav__bar {
+		position: relative;
+		z-index: 2;
+		display: grid;
+		grid-template-columns: 1fr auto 1fr;
+		align-items: center;
+		gap: 16px;
+		padding: 14px var(--gutter);
+		pointer-events: auto;
+		transition:
+			transform 0.6s var(--ease-out),
+			background-color 0.4s,
+			box-shadow 0.4s;
+	}
+
+	.nav.is-scrolled .nav__bar {
+		background: color-mix(in oklab, var(--paper) 84%, transparent);
+		-webkit-backdrop-filter: blur(14px) saturate(1.2);
+		backdrop-filter: blur(14px) saturate(1.2);
+		box-shadow: 0 1px 0 color-mix(in oklab, var(--ink) 10%, transparent);
+	}
+
+	/* Over the hero photo it would be unreadable, and the hero shows the same status anyway. */
+	.nav:not(.is-scrolled) .nav__status {
+		opacity: 0;
+		pointer-events: none;
+	}
+
+	.nav.is-hidden:not(.is-open) .nav__bar {
+		transform: translateY(-110%);
+	}
+
+	.nav__logo {
+		justify-self: start;
+	}
+
+	.nav__links {
+		display: flex;
+		gap: clamp(18px, 2.4vw, 40px);
+	}
+
+	.nav__link {
+		position: relative;
+		display: block;
+		overflow: hidden;
+		font-weight: 600;
+		font-size: 0.95rem;
+	}
+
+	.nav__link span {
+		display: block;
+		transition: transform 0.55s var(--ease-out);
+	}
+
+	.nav__link span::after {
+		content: attr(data-text);
+		position: absolute;
+		left: 0;
+		top: 100%;
+		font-family: var(--font-display);
+		font-weight: 400;
+		font-size: 1.05rem;
+		line-height: 1.3;
+	}
+
+	.nav__link:hover span,
+	.nav__link:focus-visible span {
+		transform: translateY(-100%);
+	}
+
+	.nav__right {
+		justify-self: end;
+		display: flex;
+		align-items: center;
+		gap: 18px;
+	}
+
+	.nav__status {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		transition: opacity 0.4s;
+		font-size: 0.78rem;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+		white-space: nowrap;
+	}
+
+	.nav__cta {
+		padding: 0.8em 1.2em;
+		font-size: 0.92rem;
+	}
+
+	.nav__burger {
+		display: none;
+		position: relative;
+		width: 48px;
+		height: 48px;
+		border-radius: 50%;
+		background: var(--ink);
+		color: var(--paper);
+	}
+
+	.nav__burger-line {
+		position: absolute;
+		left: 15px;
+		right: 15px;
+		top: 20px;
+		height: 1.6px;
+		background: currentColor;
+		transition: transform 0.5s var(--ease-out);
+	}
+
+	.nav__burger-line + .nav__burger-line {
+		top: 27px;
+	}
+
+	/* Opens into an X whose first stroke is the logo slash. */
+	.nav.is-open .nav__burger-line {
+		transform: translateY(3.5px) rotate(calc(var(--slash) - 90deg));
+	}
+
+	.nav.is-open .nav__burger-line + .nav__burger-line {
+		transform: translateY(-3.5px) rotate(calc(90deg - var(--slash)));
+	}
+
+	.nav.is-open .nav__bar {
+		background: transparent;
+		box-shadow: none;
+		-webkit-backdrop-filter: none;
+		backdrop-filter: none;
+		color: var(--paper);
+	}
+
+	.nav.is-open .nav__burger {
+		background: var(--paper);
+		color: var(--ink);
+	}
+
+	/* Mobile sheet */
+	.sheet {
+		position: fixed;
+		inset: 0;
+		z-index: 1;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		padding: 104px var(--gutter) max(28px, env(safe-area-inset-bottom));
+		pointer-events: auto;
+		clip-path: polygon(0 0, 100% 0, 100% 0, 0 0);
+		transition: clip-path 0.7s var(--ease-io);
+	}
+
+	.sheet[hidden] {
+		display: none;
+	}
+
+	.nav.is-open .sheet {
+		clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+	}
+
+	.sheet__links {
+		display: grid;
+	}
+
+	.sheet__link {
+		display: flex;
+		align-items: baseline;
+		gap: 16px;
+		padding: 10px 0;
+		border-bottom: 1px solid var(--line);
+		font-family: var(--font-display);
+		font-size: clamp(2.6rem, 12vw, 4.5rem);
+		line-height: 1;
+	}
+
+	.sheet__num {
+		font-size: 0.75rem;
+		color: var(--timber-2);
+	}
+
+	.sheet__foot {
+		display: grid;
+		gap: 20px;
+	}
+
+	.sheet__hours {
+		font-size: 0.8rem;
+		letter-spacing: 0.04em;
+		line-height: 1.7;
+		color: color-mix(in oklab, var(--paper) 70%, transparent);
+	}
+
+	.sheet__ctas {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 10px;
+	}
+
+	@media (max-width: 1080px) {
+		.nav__status {
+			display: none;
+		}
+	}
+
+	@media (max-width: 860px) {
+		.nav__bar {
+			grid-template-columns: 1fr auto;
+			padding-block: 10px;
+		}
+
+		.nav__links,
+		.nav__cta {
+			display: none;
+		}
+
+		.nav__burger {
+			display: block;
+		}
+	}
+</style>

@@ -1,0 +1,732 @@
+---
+import { Image } from 'astro:assets';
+import Icon from './Icon.astro';
+import { menu, tagLabels, formatPrice, type Tag } from '../data/menu';
+import { photos, type PhotoKey } from '../data/photos';
+import { site } from '../data/site';
+
+const pad = (n: number) => String(n).padStart(2, '0');
+const total = menu.reduce((sum, section) => sum + section.items.length, 0);
+const previewKeys = [...new Set(menu.flatMap((s) => s.items.map((i) => i.photo).filter(Boolean)))] as PhotoKey[];
+const filters: Tag[] = ['V', 'GFO'];
+---
+
+<section class="menu" id="menu" aria-labelledby="menu-title" data-menu>
+	<header class="wrap menu__head">
+		<p class="eyebrow menu__eyebrow" data-reveal="fade"><span>(03)</span> The menu</p>
+		<h2 class="menu__title" id="menu-title">
+			<span class="menu__title-line" data-reveal="lines">Eat</span>
+			<span class="menu__title-slash" aria-hidden="true"></span>
+			<span class="menu__title-line" data-reveal="lines">drink</span>
+			<span class="menu__title-slash" aria-hidden="true"></span>
+			<span class="menu__title-line" data-reveal="lines">repeat</span>
+		</h2>
+		<p class="menu__intro" data-reveal="fade">
+			{total} things on the board, all of it 100% halal. Prices in AUD — and keep an eye on the specials board when you
+			come in.
+		</p>
+	</header>
+
+	<div class="wrap menu__grid">
+		<aside class="menu__aside" aria-label="Menu sections and filters">
+			<div class="menu__aside-inner">
+				<p class="menu__counter serif" aria-hidden="true">
+					<span class="menu__counter-num" data-menu-num>01</span>
+					<span class="menu__counter-total mono">/ {pad(menu.length)}</span>
+				</p>
+
+				<nav class="menu__index" aria-label="Menu sections">
+					<ol>
+						{
+							menu.map((section, i) => (
+								<li>
+									<a href={`#menu-${section.id}`} class="menu__index-link" data-menu-link={section.id} aria-current={i === 0 ? 'true' : undefined}>
+										<span class="mono">{pad(i + 1)}</span>
+										<span class="menu__index-name">{section.title}</span>
+										<span class="mono menu__index-count" data-count-for={section.id}>
+											{section.items.length}
+										</span>
+									</a>
+								</li>
+							))
+						}
+					</ol>
+				</nav>
+
+				<div class="menu__filters" role="group" aria-label="Dietary filters">
+					<span class="mono menu__filters-label">Filter</span>
+					{
+						filters.map((tag) => (
+							<button type="button" class="menu__filter" aria-pressed="false" data-filter={tag}>
+								<span class="menu__filter-tag mono">{tag}</span>
+								{tagLabels[tag]}
+							</button>
+						))
+					}
+					<p class="menu__filter-status mono" aria-live="polite" data-filter-status></p>
+				</div>
+
+				<div class="menu__aside-cta">
+					<a class="btn" href={site.links.uberEats} target="_blank" rel="noopener" data-magnetic data-cursor="Order">
+						Order from the menu <Icon name="arrow" />
+					</a>
+					<a class="menu__call mono" href={site.phone.href}>
+						<Icon name="phone" /> or call {site.phone.display}
+					</a>
+				</div>
+			</div>
+		</aside>
+
+		<div class="menu__list">
+			{
+				menu.map((section, si) => (
+					<section
+						class="menu__section"
+						id={`menu-${section.id}`}
+						data-menu-section={section.id}
+						data-filterable={section.filterable === false ? 'false' : undefined}
+						aria-labelledby={`menu-h-${section.id}`}
+					>
+						<header class="menu__section-head">
+							<span class="mono menu__section-num">{pad(si + 1)}</span>
+							<h3 class="menu__section-title" id={`menu-h-${section.id}`}>
+								{section.title}
+							</h3>
+							<p class="mono menu__section-kicker">{section.kicker}</p>
+						</header>
+
+						<ul class="menu__items">
+							{section.items.map((item) => (
+								<li class="menu__item" data-tags={(item.tags ?? []).join(' ')} data-photo={item.photo}>
+									<div class="menu__row">
+										{item.photo && (
+											<Image
+												class="menu__thumb"
+												src={photos[item.photo as PhotoKey].src}
+												alt=""
+												width={128}
+												height={128}
+												fit="cover"
+												style={`object-position:${photos[item.photo as PhotoKey].focus}`}
+											/>
+										)}
+										<h4 class="menu__name">{item.name}</h4>
+										{item.badge && <span class="menu__badge mono">{item.badge}</span>}
+										<span class="menu__leader" aria-hidden="true" />
+										<span class="menu__price mono">
+											<span class="sr-only">Price: </span>
+											<span aria-hidden="true">$</span>
+											{formatPrice(item.price)}
+										</span>
+									</div>
+									{(item.description || item.tags?.length) && (
+										<div class="menu__detail">
+											{item.description && <p class="menu__desc">{item.description}</p>}
+											{item.tags?.length && (
+												<ul class="menu__tags" aria-label="Dietary">
+													{item.tags.map((tag) => (
+														<li class="menu__tag mono" title={tagLabels[tag]}>
+															<span aria-hidden="true">{tag}</span>
+															<span class="sr-only">{tagLabels[tag]}</span>
+														</li>
+													))}
+												</ul>
+											)}
+										</div>
+									)}
+								</li>
+							))}
+						</ul>
+					</section>
+				))
+			}
+			<p class="menu__empty serif" data-menu-empty hidden>Nothing matches both filters — try one at a time.</p>
+		</div>
+	</div>
+
+	<div class="menu__preview" aria-hidden="true" data-menu-preview>
+		{
+			previewKeys.map((key) => (
+				<div class="menu__preview-img" data-preview={key}>
+					<Image src={photos[key].src} alt="" width={420} height={520} fit="cover" style={`object-position:${photos[key].focus}`} />
+				</div>
+			))
+		}
+	</div>
+</section>
+
+<style>
+	.menu {
+		position: relative;
+		padding: clamp(96px, 14vw, 200px) 0 clamp(80px, 10vw, 160px);
+	}
+
+	/* ------------------------------------------------------------- head */
+
+	.menu__head {
+		display: grid;
+		grid-template-columns: repeat(12, minmax(0, 1fr));
+		gap: 20px 24px;
+		align-items: end;
+		margin-bottom: clamp(56px, 8vw, 120px);
+	}
+
+	.menu__eyebrow {
+		grid-column: 1 / -1;
+		color: var(--muted);
+	}
+
+	.menu__eyebrow span {
+		color: var(--timber-text);
+		margin-right: 8px;
+	}
+
+	.menu__title {
+		grid-column: 1 / span 9;
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0 0.18em;
+		font-size: var(--step-5);
+		line-height: 0.9;
+		letter-spacing: -0.045em;
+	}
+
+	.menu__title-slash {
+		width: max(2px, 0.03em);
+		height: 0.85em;
+		background: var(--timber);
+		transform: rotate(var(--slash));
+	}
+
+	.menu__intro {
+		grid-column: 10 / -1;
+		color: var(--muted);
+		max-width: 30ch;
+	}
+
+	/* ------------------------------------------------------------- grid */
+
+	.menu__grid {
+		display: grid;
+		grid-template-columns: repeat(12, minmax(0, 1fr));
+		gap: 24px;
+		align-items: start;
+	}
+
+	.menu__aside {
+		grid-column: 1 / span 3;
+		position: sticky;
+		top: 96px;
+	}
+
+	.menu__aside-inner {
+		display: grid;
+		gap: 32px;
+	}
+
+	.menu__counter {
+		display: flex;
+		align-items: baseline;
+		gap: 10px;
+		font-size: clamp(4rem, 7vw, 7.5rem);
+		line-height: 0.8;
+		letter-spacing: -0.04em;
+	}
+
+	.menu__counter-num {
+		display: inline-block;
+		min-width: 1.1em;
+		font-variant-numeric: lining-nums;
+	}
+
+	.menu__counter-total {
+		font-size: 0.9rem;
+		letter-spacing: 0.04em;
+		color: var(--muted);
+	}
+
+	.menu__index ol {
+		display: grid;
+		border-top: 1px solid var(--line);
+	}
+
+	.menu__index-link {
+		display: grid;
+		grid-template-columns: 2.2rem 1fr auto;
+		align-items: baseline;
+		gap: 8px;
+		padding: 9px 0;
+		border-bottom: 1px solid var(--line);
+		color: var(--muted);
+		transition:
+			color 0.3s,
+			padding 0.5s var(--ease-out);
+	}
+
+	.menu__index-link .mono {
+		font-size: 0.72rem;
+	}
+
+	.menu__index-name {
+		font-weight: 600;
+		font-size: 0.95rem;
+	}
+
+	.menu__index-link:hover,
+	.menu__index-link[aria-current='true'] {
+		color: var(--ink);
+	}
+
+	.menu__index-link[aria-current='true'] {
+		padding-left: 10px;
+	}
+
+	.menu__index-link[aria-current='true'] .mono:first-child {
+		color: var(--timber-text);
+	}
+
+	.menu__filters {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 8px;
+	}
+
+	.menu__filters-label {
+		width: 100%;
+		font-size: 0.72rem;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		color: var(--muted);
+	}
+
+	.menu__filter {
+		display: inline-flex;
+		align-items: center;
+		gap: 8px;
+		padding: 8px 14px 8px 8px;
+		border-radius: 999px;
+		box-shadow: inset 0 0 0 1px var(--line);
+		font-size: 0.86rem;
+		transition:
+			background-color 0.3s,
+			color 0.3s,
+			box-shadow 0.3s;
+	}
+
+	.menu__filter-tag {
+		display: grid;
+		place-items: center;
+		min-width: 2.2em;
+		height: 1.9em;
+		padding: 0 6px;
+		border-radius: 999px;
+		background: var(--paper-3);
+		font-size: 0.7rem;
+	}
+
+	.menu__filter:hover {
+		box-shadow: inset 0 0 0 1px var(--ink);
+	}
+
+	.menu__filter[aria-pressed='true'] {
+		background: var(--ink);
+		color: var(--paper);
+		box-shadow: none;
+	}
+
+	.menu__filter[aria-pressed='true'] .menu__filter-tag {
+		background: var(--timber-2);
+		color: var(--ink);
+	}
+
+	.menu__filter-status {
+		width: 100%;
+		min-height: 1.2em;
+		font-size: 0.72rem;
+		color: var(--muted);
+	}
+
+	.menu__aside-cta {
+		display: grid;
+		justify-items: start;
+		gap: 14px;
+	}
+
+	.menu__call {
+		display: inline-flex;
+		align-items: center;
+		gap: 8px;
+		font-size: 0.78rem;
+		letter-spacing: 0.04em;
+		color: var(--muted);
+		transition: color 0.3s;
+	}
+
+	.menu__call:hover {
+		color: var(--ink);
+	}
+
+	/* ------------------------------------------------------------- list */
+
+	.menu__list {
+		grid-column: 5 / -1;
+		display: grid;
+		gap: clamp(64px, 8vw, 120px);
+	}
+
+	.menu__section {
+		scroll-margin-top: 96px;
+	}
+
+	.menu__section[hidden] {
+		display: none;
+	}
+
+	.menu__section-head {
+		display: grid;
+		grid-template-columns: auto 1fr;
+		align-items: end;
+		gap: 4px 18px;
+		padding-bottom: 18px;
+		border-bottom: 1.5px solid var(--ink);
+	}
+
+	.menu__section-num {
+		grid-row: span 2;
+		align-self: start;
+		padding-top: 0.6em;
+		font-size: 0.8rem;
+		color: var(--timber-text);
+	}
+
+	.menu__section-title {
+		font-size: var(--step-3);
+		line-height: 0.95;
+	}
+
+	.menu__section-kicker {
+		font-size: 0.74rem;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		color: var(--muted);
+	}
+
+	.menu__items {
+		display: grid;
+	}
+
+	.menu__item {
+		position: relative;
+		display: grid;
+		gap: 6px;
+		padding: 20px 0 22px;
+		border-bottom: 1px solid var(--line);
+		isolation: isolate;
+	}
+
+	.menu__item[hidden] {
+		display: none;
+	}
+
+	/* A soft sweep of timber across the row on hover, cut on the slash. */
+	.menu__item::before {
+		content: '';
+		position: absolute;
+		inset: 0 -18px;
+		z-index: -1;
+		background: var(--paper-2);
+		clip-path: polygon(0 0, 0 0, -10% 100%, -10% 100%);
+		transition: clip-path 0.7s var(--ease-out);
+	}
+
+	@media (hover: hover) {
+		.menu__item:hover::before {
+			clip-path: polygon(0 0, 110% 0, 100% 100%, -10% 100%);
+		}
+
+		.menu__item:hover .menu__name {
+			transform: translateX(10px);
+		}
+	}
+
+	.menu__row {
+		display: flex;
+		align-items: baseline;
+		gap: 14px;
+	}
+
+	.menu__thumb {
+		display: none;
+	}
+
+	.menu__name {
+		font-size: var(--step-2);
+		line-height: 1.05;
+		letter-spacing: -0.02em;
+		transition: transform 0.6s var(--ease-out);
+	}
+
+	.menu__badge {
+		flex: none;
+		padding: 4px 9px 3px;
+		border-radius: 999px;
+		background: var(--ink);
+		color: var(--paper);
+		font-size: 0.64rem;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		transform: translateY(-0.35em);
+	}
+
+	.menu__leader {
+		flex: 1;
+		min-width: 24px;
+		border-bottom: 1.5px dotted color-mix(in oklab, var(--ink) 30%, transparent);
+		transform: translateY(-0.3em);
+	}
+
+	.menu__price {
+		flex: none;
+		font-size: var(--step-1);
+		letter-spacing: -0.02em;
+	}
+
+	.menu__price [aria-hidden] {
+		font-size: 0.6em;
+		vertical-align: 0.5em;
+		margin-right: 1px;
+		color: var(--muted);
+	}
+
+	.menu__detail {
+		display: flex;
+		align-items: start;
+		justify-content: space-between;
+		gap: 24px;
+	}
+
+	.menu__desc {
+		max-width: 52ch;
+		color: var(--muted);
+	}
+
+	.menu__tags {
+		display: flex;
+		gap: 6px;
+		flex: none;
+		margin-left: auto;
+	}
+
+	.menu__tag {
+		padding: 3px 8px 2px;
+		border-radius: 999px;
+		box-shadow: inset 0 0 0 1px var(--line);
+		font-size: 0.66rem;
+		letter-spacing: 0.06em;
+	}
+
+	.menu__empty {
+		font-size: var(--step-2);
+		color: var(--muted);
+	}
+
+	/* ---------------------------------------------------------- preview */
+
+	.menu__preview {
+		position: fixed;
+		top: 0;
+		left: 0;
+		z-index: 700;
+		width: clamp(220px, 17vw, 300px);
+		aspect-ratio: 420 / 520;
+		pointer-events: none;
+		display: none;
+	}
+
+	@media (hover: hover) and (pointer: fine) {
+		:global(.js:not(.reduced)) .menu__preview {
+			display: block;
+		}
+	}
+
+	.menu__preview-img {
+		position: absolute;
+		inset: 0;
+		overflow: hidden;
+		clip-path: polygon(50% 0, 50% 0, 50% 100%, 50% 100%);
+		transition: clip-path 0.6s var(--ease-out);
+	}
+
+	.menu__preview-img.is-active {
+		clip-path: polygon(23% 0, 100% 0, 77% 100%, 0 100%);
+	}
+
+	.menu__preview-img :global(img) {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+
+	/* ------------------------------------------------------------ small */
+
+	@media (max-width: 960px) {
+		.menu__title {
+			grid-column: 1 / -1;
+		}
+
+		.menu__intro {
+			grid-column: 1 / -1;
+		}
+
+		.menu__grid {
+			display: block;
+		}
+
+		.menu__aside {
+			position: sticky;
+			top: 0;
+			z-index: 20;
+			transition: top 0.6s var(--ease-out);
+			margin: 0 calc(var(--gutter) * -1) 32px;
+			padding: 10px var(--gutter);
+			background: color-mix(in oklab, var(--paper) 90%, transparent);
+			-webkit-backdrop-filter: blur(12px);
+			backdrop-filter: blur(12px);
+			border-bottom: 1px solid var(--line);
+		}
+
+		.menu__aside-inner {
+			gap: 10px;
+		}
+
+		.menu__counter,
+		.menu__aside-cta,
+		.menu__index-count,
+		.menu__index-link .mono:first-child,
+		.menu__filters-label {
+			display: none;
+		}
+
+		.menu__index {
+			overflow-x: auto;
+			scrollbar-width: none;
+			margin: 0 calc(var(--gutter) * -1);
+			padding: 0 var(--gutter);
+		}
+
+		.menu__index::-webkit-scrollbar {
+			display: none;
+		}
+
+		.menu__index ol {
+			display: flex;
+			gap: 6px;
+			border: 0;
+			width: max-content;
+		}
+
+		.menu__index-link {
+			display: block;
+			padding: 8px 14px;
+			border: 0;
+			border-radius: 999px;
+			box-shadow: inset 0 0 0 1px var(--line);
+			white-space: nowrap;
+		}
+
+		.menu__index-link[aria-current='true'] {
+			padding-left: 14px;
+			background: var(--ink);
+			color: var(--paper);
+			box-shadow: none;
+		}
+
+		.menu__filters {
+			flex-wrap: nowrap;
+		}
+
+		.menu__filter {
+			font-size: 0.8rem;
+			padding-block: 6px;
+		}
+
+		.menu__filter-status {
+			width: auto;
+			margin-left: auto;
+			white-space: nowrap;
+		}
+
+		.menu__section {
+			scroll-margin-top: 140px;
+		}
+
+		/* Slide down out of the way when the fixed nav reappears. */
+		:global(.nav-shown) .menu__aside {
+			top: 68px;
+		}
+	}
+
+	@media (max-width: 860px) {
+		.menu__thumb {
+			display: block;
+			flex: none;
+			align-self: center;
+			width: 52px;
+			height: 52px;
+			border-radius: 50%;
+			object-fit: cover;
+		}
+
+		/* Thumb · name · price on one line; the name wraps in its own column. */
+		.menu__row {
+			display: grid;
+			grid-template-columns: auto minmax(0, 1fr) auto;
+			align-items: baseline;
+			gap: 6px 14px;
+		}
+
+		.menu__row:not(:has(.menu__thumb)) {
+			grid-template-columns: minmax(0, 1fr) auto;
+		}
+
+		.menu__thumb {
+			grid-row: 1 / span 2;
+		}
+
+		.menu__name {
+			grid-column: -3 / -2;
+		}
+
+		.menu__price {
+			grid-column: -2 / -1;
+			grid-row: 1;
+		}
+
+		.menu__badge {
+			grid-column: -3 / -1;
+			justify-self: start;
+			transform: none;
+		}
+
+		.menu__leader {
+			display: none;
+		}
+
+		.menu__detail {
+			flex-direction: column;
+			gap: 10px;
+		}
+
+		.menu__tags {
+			margin-left: 0;
+		}
+	}
+
+	@media (max-width: 480px) {
+		.menu__filter-status {
+			display: none;
+		}
+	}
+</style>

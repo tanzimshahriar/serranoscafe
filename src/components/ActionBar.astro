@@ -1,0 +1,72 @@
+---
+import Icon from './Icon.astro';
+import { site } from '../data/site';
+---
+
+<nav class="actionbar" aria-label="Quick actions" data-actionbar>
+	<a href={site.phone.href} class="actionbar__btn">
+		<Icon name="phone" />
+		<span>Call</span>
+	</a>
+	<a href="#menu" class="actionbar__btn">
+		<Icon name="menu" />
+		<span>Menu</span>
+	</a>
+	<a href={site.links.uberEats} target="_blank" rel="noopener" class="actionbar__btn actionbar__btn--primary">
+		<Icon name="bag" />
+		<span>Order online</span>
+	</a>
+</nav>
+
+<style>
+	.actionbar {
+		position: fixed;
+		left: 12px;
+		right: 12px;
+		bottom: max(12px, env(safe-area-inset-bottom));
+		z-index: 790;
+		display: none;
+		grid-template-columns: 1fr 1fr 1.6fr;
+		gap: 6px;
+		padding: 6px;
+		border-radius: 999px;
+		background: color-mix(in oklab, var(--ink) 92%, transparent);
+		-webkit-backdrop-filter: blur(12px);
+		backdrop-filter: blur(12px);
+		color: var(--paper);
+		box-shadow: 0 18px 40px -18px rgb(0 0 0 / 0.55);
+		transform: translateY(160%);
+		transition: transform 0.6s var(--ease-out);
+	}
+
+	.actionbar.is-visible {
+		transform: none;
+	}
+
+	.actionbar__btn {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 8px;
+		min-height: 48px;
+		border-radius: 999px;
+		font-weight: 600;
+		font-size: 0.92rem;
+	}
+
+	.actionbar__btn--primary {
+		background: var(--timber-2);
+		color: var(--ink);
+	}
+
+	@media (max-width: 860px) {
+		.actionbar {
+			display: grid;
+		}
+	}
+
+	:global(.no-js) .actionbar,
+	:global(html:not(.js)) .actionbar {
+		transform: none;
+	}
+</style>

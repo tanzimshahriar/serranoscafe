@@ -1,0 +1,277 @@
+---
+import { Picture } from 'astro:assets';
+import Icon from './Icon.astro';
+import { site, formatTime } from '../data/site';
+import { photos } from '../data/photos';
+
+const beans = photos.coffeeBeans;
+const lat = `${Math.abs(site.geo.lat).toFixed(4)}° S`;
+const lng = `${site.geo.lng.toFixed(4)}° E`;
+---
+
+<section class="visit" id="visit" aria-labelledby="visit-title">
+	<div class="wrap visit__grid">
+		<header class="visit__head">
+			<p class="eyebrow visit__eyebrow" data-reveal="fade"><span>(05)</span> Visit</p>
+			<h2 class="visit__title" id="visit-title">
+				<span data-reveal="lines">Find us in</span>
+				<span data-reveal="lines">Tarneit Gardens.</span>
+			</h2>
+		</header>
+
+		<div class="visit__where" data-reveal="fade">
+			<address class="visit__address">
+				<span class="serif">{site.address.street}</span>
+				<span>{site.address.centre}</span>
+				<span>
+					{site.address.suburb} {site.address.state} {site.address.postcode}
+				</span>
+			</address>
+			<p class="visit__coords mono">{lat} <span aria-hidden="true">/</span> {lng}</p>
+			<div class="visit__ctas">
+				<a class="btn" href={site.mapsUrl} target="_blank" rel="noopener" data-magnetic data-cursor="Map">
+					Get directions <Icon name="arrow" />
+				</a>
+				<a class="btn btn--ghost" href={site.phone.href} data-magnetic>
+					<Icon name="phone" />
+					{site.phone.display}
+				</a>
+			</div>
+		</div>
+
+		<div class="visit__hours" data-reveal="fade">
+			<p class="visit__status mono" aria-live="polite">
+				<span class="dot" data-open-dot></span>
+				<span data-open-label>Opening hours</span>
+			</p>
+			<table class="visit__table">
+				<caption class="sr-only">Opening hours</caption>
+				<tbody>
+					{
+						site.hours.map((h, i) => (
+							<tr data-day={(i + 1) % 7}>
+								<th scope="row">{h.day}</th>
+								<td class="mono">{h.open ? `${formatTime(h.open)} – ${formatTime(h.close)}` : 'Closed'}</td>
+							</tr>
+						))
+					}
+				</tbody>
+			</table>
+			<p class="visit__note">Public holiday hours may vary — check our Instagram or give us a ring.</p>
+		</div>
+
+		<figure class="visit__figure" data-reveal="fade">
+			<div class="visit__img" data-parallax>
+				<Picture
+					src={beans.src}
+					alt={beans.alt}
+					widths={[480, 720, 960, 1280]}
+					sizes="(max-width: 960px) 100vw, 30vw"
+					formats={['avif', 'webp']}
+					style={`object-position:${beans.focus}`}
+				/>
+			</div>
+			<figcaption class="mono">
+				<span>Take the cafe home</span>
+				<span>Roasting Warehouse beans, in store</span>
+			</figcaption>
+		</figure>
+	</div>
+</section>
+
+<style>
+	.visit {
+		padding: clamp(96px, 14vw, 200px) 0 clamp(80px, 10vw, 160px);
+	}
+
+	.visit__grid {
+		display: grid;
+		grid-template-columns: repeat(12, minmax(0, 1fr));
+		gap: clamp(32px, 5vw, 72px) 24px;
+	}
+
+	.visit__head {
+		grid-column: 1 / -1;
+		display: grid;
+		gap: 20px;
+	}
+
+	.visit__eyebrow {
+		color: var(--muted);
+	}
+
+	.visit__eyebrow span {
+		color: var(--timber-text);
+		margin-right: 8px;
+	}
+
+	.visit__title {
+		display: grid;
+		font-size: clamp(3rem, 1.2rem + 7vw, 9.5rem);
+		line-height: 0.88;
+		letter-spacing: -0.045em;
+	}
+
+	.visit__title span:last-child {
+		padding-left: 0.8em;
+	}
+
+	.visit__where {
+		grid-column: 1 / span 4;
+		display: grid;
+		align-content: start;
+		gap: 24px;
+	}
+
+	.visit__address {
+		display: grid;
+		gap: 4px;
+		font-style: normal;
+		color: var(--muted);
+	}
+
+	.visit__address .serif {
+		font-size: var(--step-2);
+		line-height: 1;
+		color: var(--ink);
+	}
+
+	.visit__coords {
+		font-size: 0.78rem;
+		letter-spacing: 0.06em;
+		color: var(--muted);
+	}
+
+	.visit__coords span {
+		margin: 0 6px;
+		color: var(--timber-text);
+	}
+
+	.visit__ctas {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 10px;
+	}
+
+	.visit__hours {
+		grid-column: 5 / span 4;
+		display: grid;
+		align-content: start;
+		gap: 18px;
+	}
+
+	.visit__status {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		font-size: 0.8rem;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+	}
+
+	.visit__table {
+		width: 100%;
+		border-collapse: collapse;
+	}
+
+	.visit__table th,
+	.visit__table td {
+		padding: 12px 0;
+		border-bottom: 1px solid var(--line);
+		text-align: left;
+		font-weight: 400;
+	}
+
+	.visit__table td {
+		text-align: right;
+		font-size: 0.9rem;
+	}
+
+	.visit__table tr.is-today th,
+	.visit__table tr.is-today td {
+		color: var(--ink);
+		font-weight: 600;
+	}
+
+	.visit__table tr.is-today th::after {
+		content: 'Today';
+		margin-left: 10px;
+		padding: 3px 8px 2px;
+		border-radius: 999px;
+		background: var(--timber-2);
+		font-family: var(--font-mono);
+		font-size: 0.62rem;
+		font-weight: 400;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		vertical-align: 0.15em;
+	}
+
+	.visit__note {
+		font-size: 0.85rem;
+		color: var(--muted);
+	}
+
+	.visit__figure {
+		grid-column: 9 / -1;
+		display: grid;
+		gap: 12px;
+	}
+
+	.visit__img {
+		aspect-ratio: 4 / 5;
+		overflow: hidden;
+		clip-path: polygon(18% 0, 100% 0, 82% 100%, 0 100%);
+	}
+
+	.visit__img :global(picture),
+	.visit__img :global(img) {
+		width: 100%;
+		height: 100%;
+	}
+
+	.visit__img :global(img) {
+		object-fit: cover;
+		scale: 1.15;
+	}
+
+	.visit__figure figcaption {
+		display: flex;
+		justify-content: space-between;
+		gap: 12px;
+		font-size: 0.72rem;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+		color: var(--muted);
+	}
+
+	@media (max-width: 960px) {
+		.visit__where,
+		.visit__hours {
+			grid-column: span 6;
+		}
+
+		.visit__figure {
+			grid-column: 1 / -1;
+		}
+
+		.visit__img {
+			aspect-ratio: 16 / 11;
+		}
+	}
+
+	@media (max-width: 640px) {
+		.visit__where,
+		.visit__hours {
+			grid-column: 1 / -1;
+		}
+
+		.visit__title span:last-child {
+			padding-left: 0;
+		}
+
+		.visit__figure figcaption {
+			flex-direction: column;
+		}
+	}
+</style>
