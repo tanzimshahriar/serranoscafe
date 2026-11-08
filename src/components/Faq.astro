@@ -1,0 +1,254 @@
+---
+/** Questions people actually ask a cafe. Native <details>, so it works without JavaScript. */
+import { site, formatTime } from '../data/site';
+
+interface Props {
+	num?: string;
+}
+
+const { num = '04' } = Astro.props;
+const weekday = site.hours[0];
+const sat = site.hours[5];
+const sun = site.hours[6];
+
+const faqs = [
+	{
+		q: 'Is everything halal?',
+		a: `Yes. Serranos is a 100% halal cafe: the brisket, the sujuk, the chicken, the sauces — all of it. You can order anything on the menu without asking.`,
+	},
+	{
+		q: 'Do you have gluten-free options?',
+		a: 'Plenty. Dishes marked GFO on the menu can be made gluten-free (we have gluten-free bread and burger buns). If you have a serious intolerance, tell us when you order and we will check the ingredients with the kitchen.',
+	},
+	{
+		q: 'What about vegetarians?',
+		a: 'Look for the V tag on the menu, or use the Vegetarian filter on the menu page to see only those dishes.',
+	},
+	{
+		q: 'Can I book a table?',
+		a: `Coming with a bigger group? Give us a ring on ${site.phone.display} before you head over and we will do our best to have room for you.`,
+	},
+	{
+		q: 'Is it good for kids and families?',
+		a: 'Very. There is a Little Ones section on the menu, waits are short, and between the hotcakes, smoothies and iced chocolates there is something for every age at the table.',
+	},
+	{
+		q: 'Where do I park?',
+		a: `We are inside ${site.address.centre} at ${site.address.street}, ${site.address.suburb}. Use the shopping centre car park out front.`,
+	},
+	{
+		q: 'Can I get it delivered?',
+		a: 'Yes — the whole menu is on Uber Eats for delivery or pickup. You can also call ahead and we will have it ready when you walk in.',
+	},
+	{
+		q: 'When are you open?',
+		a: `Monday to Friday ${formatTime(weekday.open)}–${formatTime(weekday.close)}, Saturday ${formatTime(sat.open)}–${formatTime(sat.close)} and Sunday ${formatTime(sun.open)}–${formatTime(sun.close)}. Public holiday hours can change, so check Instagram or call first.`,
+	},
+	{
+		q: 'Can I buy your coffee beans?',
+		a: `Yes. We pour ${site.roaster} beans and sell bags of them, plus coffee pods, at the counter.`,
+	},
+];
+
+const structured = {
+	'@context': 'https://schema.org',
+	'@type': 'FAQPage',
+	mainEntity: faqs.map((f) => ({
+		'@type': 'Question',
+		name: f.q,
+		acceptedAnswer: { '@type': 'Answer', text: f.a },
+	})),
+};
+---
+
+<section class="faq" id="faq" aria-labelledby="faq-title">
+	<div class="wrap faq__grid">
+		<header class="faq__head">
+			<p class="eyebrow faq__eyebrow" data-reveal="fade"><span>({num})</span> Good questions</p>
+			<h2 class="faq__title" id="faq-title">
+				<span data-reveal="lines">Before you</span>
+				<span data-reveal="lines">pull up.</span>
+			</h2>
+			<p class="faq__note" data-reveal="fade">
+				Anything else? Call <a href={site.phone.href}>{site.phone.display}</a> or message us on
+				<a href={site.links.instagram} target="_blank" rel="noopener">Instagram</a>.
+			</p>
+		</header>
+
+		<div class="faq__list">
+			{
+				faqs.map((f, i) => (
+					<details class="faq__item" name="faq" open={i === 0} data-reveal="fade">
+						<summary>
+							<span class="mono faq__n">{String(i + 1).padStart(2, '0')}</span>
+							<span class="faq__q serif">{f.q}</span>
+							<span class="faq__icon" aria-hidden="true" />
+						</summary>
+						<div class="faq__a">
+							<p>{f.a}</p>
+						</div>
+					</details>
+				))
+			}
+		</div>
+	</div>
+	<script type="application/ld+json" set:html={JSON.stringify(structured)} />
+</section>
+
+<style>
+	.faq {
+		padding-block: clamp(96px, 12vw, 180px);
+	}
+
+	.faq__grid {
+		display: grid;
+		grid-template-columns: repeat(12, minmax(0, 1fr));
+		gap: 48px 24px;
+	}
+
+	.faq__head {
+		grid-column: 1 / span 4;
+		align-self: start;
+		position: sticky;
+		top: 120px;
+	}
+
+	.faq__eyebrow {
+		color: var(--timber-text);
+		margin-bottom: 24px;
+	}
+
+	.faq__title {
+		display: flex;
+		flex-direction: column;
+		font-size: var(--step-4);
+	}
+
+	.faq__title span:last-child {
+		font-style: italic;
+	}
+
+	.faq__note {
+		margin-top: 28px;
+		max-width: 30ch;
+		color: var(--muted);
+	}
+
+	.faq__note a {
+		color: var(--fg);
+		text-decoration: underline;
+		text-underline-offset: 3px;
+	}
+
+	.faq__list {
+		grid-column: 6 / -1;
+		border-top: 1px solid var(--line);
+	}
+
+	.faq__item {
+		border-bottom: 1px solid var(--line);
+	}
+
+	.faq__item summary {
+		display: grid;
+		grid-template-columns: 48px 1fr auto;
+		align-items: center;
+		gap: 16px;
+		padding-block: 26px;
+		cursor: pointer;
+		list-style: none;
+	}
+
+	.faq__item summary::-webkit-details-marker {
+		display: none;
+	}
+
+	.faq__n {
+		font-size: var(--step--1);
+		color: var(--timber-text);
+	}
+
+	.faq__q {
+		font-size: var(--step-2);
+		line-height: 1.05;
+		transition: transform 0.6s var(--ease-out);
+	}
+
+	summary:hover .faq__q {
+		transform: translateX(8px);
+	}
+
+	.faq__icon {
+		position: relative;
+		width: 36px;
+		height: 36px;
+		border-radius: 50%;
+		box-shadow: inset 0 0 0 1.5px var(--line);
+		transition: background 0.4s, transform 0.6s var(--ease-out);
+	}
+
+	.faq__icon::before,
+	.faq__icon::after {
+		content: '';
+		position: absolute;
+		left: 50%;
+		top: 50%;
+		width: 12px;
+		height: 1.5px;
+		margin: -0.75px 0 0 -6px;
+		background: currentColor;
+		transition: transform 0.6s var(--ease-out);
+	}
+
+	.faq__icon::after {
+		transform: rotate(90deg);
+	}
+
+	.faq__item[open] .faq__icon {
+		background: var(--timber);
+		transform: rotate(var(--slash));
+	}
+
+	.faq__item[open] .faq__icon::after {
+		transform: rotate(0deg);
+	}
+
+	.faq__a {
+		padding: 0 56px 30px 64px;
+		max-width: 62ch;
+		color: color-mix(in oklab, var(--fg) 80%, var(--bg));
+	}
+
+	/* Where supported, the answer slides open instead of popping. */
+	@supports (interpolate-size: allow-keywords) {
+		.faq {
+			interpolate-size: allow-keywords;
+		}
+
+		.faq__item::details-content {
+			height: 0;
+			overflow: clip;
+			transition: height 0.6s var(--ease-out), content-visibility 0.6s allow-discrete;
+		}
+
+		.faq__item[open]::details-content {
+			height: auto;
+		}
+	}
+
+	@media (max-width: 860px) {
+		.faq__head,
+		.faq__list {
+			grid-column: 1 / -1;
+			position: static;
+		}
+
+		.faq__item summary {
+			grid-template-columns: 32px 1fr auto;
+		}
+
+		.faq__a {
+			padding: 0 0 26px 48px;
+		}
+	}
+</style>

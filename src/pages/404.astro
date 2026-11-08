@@ -1,0 +1,57 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Icon from '../components/Icon.astro';
+import { site, pages } from '../data/site';
+---
+
+<Layout title={`Page not found — ${site.name}`} description="This page isn't on the menu.">
+	<section class="nf" data-page-hero>
+		<div class="wrap nf__inner">
+			<p class="eyebrow nf__eyebrow">Error 404</p>
+			<h1 class="nf__title">
+				<span>Not on</span>
+				<span>the menu.</span>
+			</h1>
+			<p class="nf__text">That page has been eaten. Try one of these instead:</p>
+			<ul class="nf__links" role="list">
+				<li><a class="btn" href="/">Home <Icon name="arrow" /></a></li>
+				{pages.map((p) => <li><a class="btn btn--ghost" href={p.href}>{p.label} <Icon name="arrow" /></a></li>)}
+			</ul>
+		</div>
+	</section>
+</Layout>
+
+<style>
+	.nf {
+		min-height: 100svh;
+		display: grid;
+		align-items: center;
+		padding-block: 140px 80px;
+	}
+
+	.nf__eyebrow {
+		color: var(--timber-text);
+	}
+
+	.nf__title {
+		display: flex;
+		flex-direction: column;
+		margin-block: 24px 32px;
+		font-size: clamp(3.4rem, 0.8rem + 12vw, 14rem);
+		line-height: 0.86;
+		letter-spacing: -0.045em;
+	}
+
+	.nf__title span:last-child {
+		font-style: italic;
+		color: var(--timber-text);
+		padding-left: 0.6em;
+	}
+
+	.nf__links {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 10px;
+		margin-top: 24px;
+	}
+</style>

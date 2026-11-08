@@ -1,27 +1,23 @@
 ---
 import Logo from './Logo.astro';
 import Icon from './Icon.astro';
-import { site, formatTime } from '../data/site';
+import { site, formatTime, pages } from '../data/site';
 
-const links = [
-	{ href: '#menu', label: 'Menu' },
-	{ href: '#signatures', label: 'Signatures' },
-	{ href: '#order', label: 'Order' },
-	{ href: '#visit', label: 'Visit' },
-];
+const path = Astro.url.pathname.replace(/\/?$/, '/');
+const links = pages.map((page) => ({ ...page, current: path.startsWith(page.href) }));
 ---
 
 <header class="nav" data-nav>
 	<div class="nav__bar">
-		<a href="#top" class="nav__logo">
+		<a href="/" class="nav__logo" aria-current={path === '/' ? 'page' : undefined}>
 			<Logo />
-			<span class="sr-only">, back to top</span>
+			<span class="sr-only">, home</span>
 		</a>
 
 		<nav class="nav__links" aria-label="Primary">
 			{
 				links.map((link) => (
-					<a href={link.href} class="nav__link" data-hover>
+					<a href={link.href} class="nav__link" data-hover aria-current={link.current ? 'page' : undefined}>
 						<span data-text={link.label}>{link.label}</span>
 					</a>
 				))
@@ -33,7 +29,7 @@ const links = [
 				<span class="dot" data-open-dot></span>
 				<span data-open-label>Tarneit Gardens</span>
 			</p>
-			<a class="btn nav__cta" href={site.links.uberEats} target="_blank" rel="noopener" data-magnetic data-cursor="Order">
+			<a class="btn nav__cta" href={site.links.uberEats} target="_blank" rel="noopener" data-magnetic>
 				Order online <Icon name="arrow" />
 			</a>
 			<button class="nav__burger" type="button" aria-expanded="false" aria-controls="nav-sheet" data-burger>
@@ -48,7 +44,7 @@ const links = [
 		<nav class="sheet__links" aria-label="Mobile">
 			{
 				links.map((link, i) => (
-					<a href={link.href} class="sheet__link" data-sheet-link>
+					<a href={link.href} class="sheet__link" data-sheet-link aria-current={link.current ? 'page' : undefined}>
 						<span class="mono sheet__num">0{i + 1}</span>
 						<span>{link.label}</span>
 					</a>
@@ -118,15 +114,19 @@ const links = [
 		gap: clamp(18px, 2.4vw, 40px);
 	}
 
+	/* Hover rolls the label up to an identical copy in timber. Only the top and bottom
+	   are clipped, so nothing is ever cut off at the sides. */
 	.nav__link {
 		position: relative;
 		display: block;
-		overflow: hidden;
+		clip-path: inset(0 -1em);
 		font-weight: 600;
 		font-size: 0.95rem;
+		line-height: 1.5;
 	}
 
 	.nav__link span {
+		position: relative;
 		display: block;
 		transition: transform 0.55s var(--ease-out);
 	}
@@ -136,15 +136,32 @@ const links = [
 		position: absolute;
 		left: 0;
 		top: 100%;
-		font-family: var(--font-display);
-		font-weight: 400;
-		font-size: 1.05rem;
-		line-height: 1.3;
+		color: var(--timber-text);
 	}
 
 	.nav__link:hover span,
 	.nav__link:focus-visible span {
 		transform: translateY(-100%);
+	}
+
+	/* The current page wears the logo's slash. */
+	.nav__link[aria-current='page'] {
+		padding-left: 0.85em;
+	}
+
+	.nav__link[aria-current='page']::before {
+		content: '';
+		position: absolute;
+		left: 0.2em;
+		top: 50%;
+		width: 1.5px;
+		height: 0.95em;
+		background: var(--timber);
+		transform: translateY(-50%) rotate(var(--slash));
+	}
+
+	.sheet__link[aria-current='page'] {
+		color: var(--timber-2);
 	}
 
 	.nav__right {

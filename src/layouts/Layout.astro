@@ -3,6 +3,7 @@ import { Font, getImage } from 'astro:assets';
 import '../styles/global.css';
 import Nav from '../components/Nav.astro';
 import ActionBar from '../components/ActionBar.astro';
+import Footer from '../components/Footer.astro';
 import Preloader from '../components/Preloader.astro';
 import { site } from '../data/site';
 import { menu } from '../data/menu';
@@ -18,6 +19,7 @@ const {
 	description = site.description,
 } = Astro.props;
 
+const isHome = Astro.url.pathname === '/';
 const canonical = new URL(Astro.url.pathname, Astro.site ?? site.url).href;
 
 const og = await getImage({
@@ -79,7 +81,7 @@ const structuredData = {
 	hasMenu: {
 		'@type': 'Menu',
 		name: 'Menu',
-		url: `${site.url}/#menu`,
+		url: `${site.url}/menu/`,
 		hasMenuSection: menu.map((section) => ({
 			'@type': 'MenuSection',
 			name: section.title,
@@ -133,7 +135,7 @@ const structuredData = {
 					seen = sessionStorage.getItem('serranos:intro') === '1';
 					sessionStorage.setItem('serranos:intro', '1');
 				} catch (e) {}
-				if (!seen && !d.classList.contains('reduced')) d.classList.add('show-loader');
+				if (!seen && !d.classList.contains('reduced') && location.pathname === '/') d.classList.add('show-loader');
 				// Pinned sections add height after boot, so a restored or #hash scroll lands mid-page.
 				// Start at the top and let the main script travel to any #hash once layout settles.
 				var hash = '';
@@ -155,13 +157,13 @@ const structuredData = {
 		<script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
 	</head>
 	<body>
-		<a class="skip-link" href="#menu">Skip to the menu</a>
-		<Preloader />
+		<a class="skip-link" href="#main">Skip to content</a>
+		{isHome && <Preloader />}
 		<Nav />
-		<main id="top">
+		<main id="main" tabindex="-1">
 			<slot />
 		</main>
-		<slot name="footer" />
+		<Footer />
 		<ActionBar />
 
 		<div class="cursor" aria-hidden="true">

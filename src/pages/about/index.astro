@@ -1,0 +1,653 @@
+---
+import { Picture } from 'astro:assets';
+import Layout from '../../layouts/Layout.astro';
+import PageHero from '../../components/PageHero.astro';
+import Marquee from '../../components/Marquee.astro';
+import Icon from '../../components/Icon.astro';
+import { site, formatTime } from '../../data/site';
+import { menu } from '../../data/menu';
+import { photos, type PhotoKey } from '../../data/photos';
+
+const count = menu.reduce((n, section) => n + section.items.length, 0);
+const drinks = menu.find((s) => s.id === 'drinks')?.items.slice(0, 6) ?? [];
+
+const statement = `Serranos is a neighbourhood cafe on the edge of ${site.address.centre}. Since ${site.since} we have been pouring coffee and plating brunch for Tarneit — big breakfasts for the weekend crowd, quick lunches for the weekday one, and a halal kitchen so nobody at the table has to ask.`;
+
+const numbers = [
+	{ value: '100', suffix: '%', label: 'Halal. Every plate, every sauce.' },
+	{ value: site.since, suffix: '', label: 'The year we first show up in the local press.', plain: true },
+	{ value: site.rating.value, suffix: '★', label: `From ${site.rating.count} ratings on ${site.rating.source}.` },
+	{ value: String(count), suffix: '', label: 'Things on the menu, from sujuk to smoothies.' },
+];
+
+const values: { n: string; title: string; text: string; photo: PhotoKey }[] = [
+	{
+		n: '01',
+		title: 'Halal, all of it.',
+		text: 'Turkey bacon instead of pork, halal brisket, halal sujuk, halal chicken. There is no separate list to check and no asterisk at the bottom of the menu.',
+		photo: 'smashedAvo',
+	},
+	{
+		n: '02',
+		title: 'Generous by default.',
+		text: '“Portions are generous, service is cheerful” is how one local guide put it. We would rather you take some home than leave hungry.',
+		photo: 'biscoffHotcakes',
+	},
+	{
+		n: '03',
+		title: 'Ask, and we’ll check.',
+		text: 'Gluten-free bread and buns, vegetarian plates and staff who will go through the ingredients with you. Allergies are a conversation, not a problem.',
+		photo: 'smoothies',
+	},
+	{
+		n: '04',
+		title: 'Coffee worth the detour.',
+		text: `${site.roaster} beans, dialled in every morning. Iced, oat, maple, cold foam — or just a good flat white, done properly.`,
+		photo: 'oatMapleLatte',
+	},
+];
+
+const weekday = site.hours[0];
+const weekend = site.hours[6];
+const day = [
+	{
+		time: formatTime(weekday.open),
+		title: 'Shutters up',
+		text: `${site.roaster} in the grinder and the first flat whites out the door. Early on weekends too, from ${formatTime(weekend.open)} on Sundays.`,
+		dishes: ['Coffee', 'Iced Coffee', 'Tea'],
+	},
+	{
+		time: '8:30am',
+		title: 'Brekkie rush',
+		text: 'The tables fill, the pans stay hot and the turkey bacon does not stop.',
+		dishes: ['Big Breakfast', 'Eggs Benny', 'Shakshuka', 'Smashed Avo'],
+	},
+	{
+		time: '11am',
+		title: 'Sweet side',
+		text: 'Somebody always orders the hotcakes for the table. Somebody always regrets not ordering their own.',
+		dishes: ['Hotcakes', 'Biscoff French Toast', 'Kids Pancakes'],
+	},
+	{
+		time: '12:30pm',
+		title: 'Lunch',
+		text: 'Burgers, brisket and the old-school plates for anyone who skipped breakfast.',
+		dishes: ['Brisket Sandwich', 'Smashed Beef Burger', 'Chicken Parma'],
+	},
+	{
+		time: '2:30pm',
+		title: 'Afternoon fix',
+		text: 'Cold foam, fruit and ice for the slow end of the day.',
+		dishes: ['Oat Maple Iced Latte', 'Banana Iced Chocolate', 'Smoothies'],
+	},
+	{
+		time: formatTime(weekday.close),
+		title: 'Last call',
+		text: `Chairs up on weekdays. Saturdays and Sundays we close at ${formatTime(weekend.close)}, so come early.`,
+		dishes: [],
+	},
+];
+
+const beans = photos.coffeeBeans;
+---
+
+<Layout
+	title={`Our story — ${site.name}, Tarneit`}
+	description={`The story of ${site.name}: a 100% halal neighbourhood cafe in ${site.address.centre}, pouring ${site.roaster} coffee since ${site.since}.`}
+>
+	<PageHero
+		num="02"
+		label="Story"
+		lines={['Halal brunch,', 'Tarneit-made.']}
+		lede="A neighbourhood cafe with a halal kitchen, a proper coffee machine and a regular crowd that has been coming back for years."
+		photo="smoothies"
+		pill="bananaIcedChoc"
+	/>
+
+	<section class="ab-intro" aria-labelledby="ab-intro-title">
+		<div class="wrap ab-intro__grid">
+			<p class="eyebrow ab-intro__label" data-reveal="fade"><span>(01)</span> Since {site.since}</p>
+			<h2 class="sr-only" id="ab-intro-title">Who we are</h2>
+			<p class="ab-intro__statement serif" data-scrub-words>{statement}</p>
+		</div>
+	</section>
+
+	<section class="ab-nums theme-timber" aria-label="Serranos in numbers">
+		<dl class="wrap ab-nums__grid">
+			{
+				numbers.map((n) => (
+					<div class="ab-nums__item" data-reveal="fade">
+						<dt class="mono ab-nums__label">{n.label}</dt>
+						<dd class="serif ab-nums__value">
+							<span data-count={n.plain ? undefined : n.value}>{n.value}</span>
+							{n.suffix && <span class="ab-nums__suffix">{n.suffix}</span>}
+						</dd>
+					</div>
+				))
+			}
+		</dl>
+	</section>
+
+	<section class="ab-values theme-ink" aria-labelledby="ab-values-title">
+		<div class="wrap">
+			<header class="ab-values__head">
+				<p class="eyebrow ab-values__eyebrow" data-reveal="fade"><span>(02)</span> What we stand on</p>
+				<h2 class="ab-values__title" id="ab-values-title" data-reveal="lines">Four things we don’t bend on.</h2>
+			</header>
+			<ol class="ab-values__stack">
+				{
+					values.map((v, i) => (
+						<li class="ab-card" style={`--i:${i}`}>
+							<div class="ab-card__text">
+								<span class="mono ab-card__n">{v.n} / 04</span>
+								<h3 class="ab-card__title">{v.title}</h3>
+								<p>{v.text}</p>
+							</div>
+							<div class="ab-card__img">
+								<Picture fallbackFormat="webp"
+									src={photos[v.photo].src}
+									alt={photos[v.photo].alt}
+									formats={['avif', 'webp']}
+									widths={[480, 800, 1100]}
+									sizes="(max-width: 860px) 92vw, 46vw"
+									fit="cover"
+									style={`object-position:${photos[v.photo].focus}`}
+								/>
+							</div>
+						</li>
+					))
+				}
+			</ol>
+		</div>
+	</section>
+
+	<section class="ab-day" aria-labelledby="ab-day-title">
+		<div class="wrap ab-day__grid">
+			<header class="ab-day__head">
+				<p class="eyebrow ab-day__eyebrow" data-reveal="fade"><span>(03)</span> A day at Serranos</p>
+				<h2 class="ab-day__title" id="ab-day-title">
+					<span data-reveal="lines">From first pour</span>
+					<span data-reveal="lines">to last call.</span>
+				</h2>
+				<p class="ab-day__note" data-reveal="fade">A weekday, roughly. Order anything on the menu whenever we are open.</p>
+			</header>
+			<ol class="ab-day__list">
+				{
+					day.map((d) => (
+						<li class="ab-day__item" data-reveal="fade">
+							<p class="ab-day__time serif">{d.time}</p>
+							<div class="ab-day__body">
+								<h3 class="ab-day__name">{d.title}</h3>
+								<p>{d.text}</p>
+								{d.dishes.length > 0 && (
+									<ul class="ab-day__dishes" role="list" aria-label="On the pass">
+										{d.dishes.map((dish) => <li class="mono">{dish}</li>)}
+									</ul>
+								)}
+							</div>
+						</li>
+					))
+				}
+			</ol>
+		</div>
+	</section>
+
+	<Marquee items={['Roasting Warehouse', 'Ground to order', 'Beans to take home', 'Iced or hot', 'Cold foam']} />
+
+	<section class="ab-coffee" aria-labelledby="ab-coffee-title">
+		<div class="wrap ab-coffee__grid">
+			<div class="ab-coffee__img" data-parallax>
+				<Picture fallbackFormat="webp"
+					src={beans.src}
+					alt={beans.alt}
+					formats={['avif', 'webp']}
+					widths={[480, 800, 1200]}
+					sizes="(max-width: 860px) 92vw, 44vw"
+					fit="cover"
+					style={`object-position:${beans.focus}`}
+				/>
+			</div>
+			<div class="ab-coffee__text">
+				<p class="eyebrow ab-coffee__eyebrow" data-reveal="fade"><span>(04)</span> In the hopper</p>
+				<h2 class="ab-coffee__title" id="ab-coffee-title" data-reveal="lines">{site.roaster} beans, and they’re for sale.</h2>
+				<p data-reveal="fade">
+					The same beans that go through our grinder are on the counter in bags to take home, with pods for the machine in your kitchen.
+					Ask the barista what’s in the hopper this week.
+				</p>
+				<ul class="ab-coffee__list" role="list">
+					{
+						drinks.map((d) => (
+							<li data-reveal="fade">
+								<span>{d.name}</span>
+								<span class="ab-coffee__dots" aria-hidden="true" />
+								<span class="mono">
+									{d.pricePrefix && `${d.pricePrefix} `}${d.price.toFixed(2)}
+								</span>
+							</li>
+						))
+					}
+				</ul>
+				<a class="btn" href="/menu/#menu-drinks" data-magnetic>The full drinks list <Icon name="arrow" /></a>
+			</div>
+		</div>
+	</section>
+
+	<section class="next">
+		<p class="eyebrow next__eyebrow">Next — don’t take our word for it</p>
+		<a class="next__link" href="/reviews/" data-cursor="Read">Reviews <Icon name="arrow" /></a>
+	</section>
+</Layout>
+
+<style>
+	/* ------------------------------------------------------------ intro */
+	.ab-intro {
+		padding-block: clamp(96px, 13vw, 200px);
+	}
+
+	.ab-intro__grid {
+		display: grid;
+		grid-template-columns: repeat(12, minmax(0, 1fr));
+		gap: 24px;
+	}
+
+	.ab-intro__label {
+		grid-column: 1 / span 3;
+		color: var(--timber-text);
+		padding-top: 0.8em;
+	}
+
+	.ab-intro__statement {
+		grid-column: 4 / -1;
+		font-size: var(--step-3);
+		line-height: 1.08;
+		letter-spacing: -0.02em;
+	}
+
+	.js:not(.reduced) .ab-intro__statement :global(.split-word) {
+		opacity: 0.16;
+	}
+
+	/* ---------------------------------------------------------- numbers */
+	.ab-nums {
+		padding-block: clamp(56px, 7vw, 100px);
+	}
+
+	.ab-nums__grid {
+		display: grid;
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+	}
+
+	.ab-nums__item {
+		display: flex;
+		flex-direction: column-reverse;
+		justify-content: start;
+		gap: 18px;
+		padding: 8px 24px 8px 0;
+	}
+
+	.ab-nums__item + .ab-nums__item {
+		padding-left: 24px;
+		border-left: 1px solid var(--line);
+	}
+
+	.ab-nums__value {
+		font-size: clamp(3.2rem, 1.4rem + 5vw, 7.5rem);
+		line-height: 0.85;
+		letter-spacing: -0.04em;
+		font-variant-numeric: tabular-nums;
+	}
+
+	.ab-nums__suffix {
+		font-size: 0.5em;
+		vertical-align: 0.6em;
+		margin-left: 0.04em;
+	}
+
+	.ab-nums__label {
+		max-width: 22ch;
+		font-size: var(--step--1);
+		line-height: 1.4;
+	}
+
+	/* ------------------------------------------------- stacking values */
+	.ab-values {
+		padding-block: clamp(96px, 12vw, 180px);
+	}
+
+	.ab-values__head {
+		display: grid;
+		grid-template-columns: repeat(12, minmax(0, 1fr));
+		gap: 24px;
+		margin-bottom: clamp(48px, 6vw, 80px);
+	}
+
+	.ab-values__eyebrow {
+		grid-column: 1 / span 3;
+		color: var(--timber-2);
+		padding-top: 0.6em;
+	}
+
+	.ab-values__title {
+		grid-column: 4 / -1;
+		font-size: var(--step-4);
+		max-width: 14ch;
+	}
+
+	.ab-values__stack {
+		display: grid;
+		gap: clamp(20px, 3vw, 40px);
+	}
+
+	/* Each card sticks a little lower than the last, so they pile up as you scroll. */
+	.ab-card {
+		position: sticky;
+		top: calc(96px + var(--i) * 22px);
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+		min-height: min(68svh, 620px);
+		border-radius: clamp(18px, 2vw, 28px);
+		overflow: hidden;
+		background: var(--paper);
+		color: var(--ink);
+		box-shadow: 0 -20px 60px -30px rgb(0 0 0 / 0.6);
+	}
+
+	.ab-card:nth-child(2) {
+		background: var(--timber-2);
+	}
+
+	.ab-card:nth-child(3) {
+		background: var(--paper-3);
+	}
+
+	.ab-card:nth-child(4) {
+		background: var(--ink-3);
+		color: var(--paper);
+	}
+
+	.ab-card__text {
+		display: flex;
+		flex-direction: column;
+		gap: 22px;
+		padding: clamp(28px, 4vw, 64px);
+	}
+
+	.ab-card__n {
+		font-size: var(--step--1);
+		letter-spacing: 0.08em;
+	}
+
+	.ab-card__title {
+		margin-top: auto;
+		font-size: var(--step-4);
+		max-width: 9ch;
+	}
+
+	.ab-card__text p {
+		max-width: 40ch;
+		font-size: var(--step-1);
+		line-height: 1.4;
+	}
+
+	.ab-card__img {
+		position: relative;
+		clip-path: polygon(16% 0, 100% 0, 100% 100%, 0 100%);
+	}
+
+	.ab-card__img :global(picture),
+	.ab-card__img :global(img) {
+		position: absolute;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+
+	/* ------------------------------------------------------------- day */
+	.ab-day {
+		padding-block: clamp(96px, 12vw, 180px);
+	}
+
+	.ab-day__grid {
+		display: grid;
+		grid-template-columns: repeat(12, minmax(0, 1fr));
+		gap: 48px 24px;
+	}
+
+	.ab-day__head {
+		grid-column: 1 / span 4;
+		align-self: start;
+		position: sticky;
+		top: 120px;
+	}
+
+	.ab-day__eyebrow {
+		color: var(--timber-text);
+		margin-bottom: 24px;
+	}
+
+	.ab-day__title {
+		display: flex;
+		flex-direction: column;
+		font-size: var(--step-4);
+	}
+
+	.ab-day__title span:last-child {
+		font-style: italic;
+		color: var(--timber-text);
+	}
+
+	.ab-day__note {
+		margin-top: 28px;
+		max-width: 28ch;
+		color: var(--muted);
+	}
+
+	/* A timber line runs down the timeline and fills as you scroll (where supported). */
+	.ab-day__list {
+		position: relative;
+		grid-column: 6 / -1;
+		padding-left: clamp(28px, 3vw, 48px);
+	}
+
+	.ab-day__list::before,
+	.ab-day__list::after {
+		content: '';
+		position: absolute;
+		left: 0;
+		top: 0;
+		bottom: 0;
+		width: 2px;
+		background: var(--line);
+	}
+
+	.ab-day__list::after {
+		background: var(--timber);
+		transform-origin: top;
+	}
+
+	@supports (animation-timeline: view()) {
+		.js:not(.reduced) .ab-day__list::after {
+			animation: ab-fill linear both;
+			animation-timeline: view();
+			animation-range: entry 40% exit 60%;
+		}
+	}
+
+	@keyframes ab-fill {
+		from {
+			transform: scaleY(0);
+		}
+		to {
+			transform: scaleY(1);
+		}
+	}
+
+	.ab-day__item {
+		position: relative;
+		display: grid;
+		grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+		gap: 12px 32px;
+		padding-block: clamp(28px, 3.4vw, 48px);
+		border-bottom: 1px solid var(--line);
+	}
+
+	.ab-day__item::before {
+		content: '';
+		position: absolute;
+		left: calc(clamp(28px, 3vw, 48px) * -1 - 5px);
+		top: calc(clamp(28px, 3.4vw, 48px) + 0.9em);
+		width: 12px;
+		height: 12px;
+		border-radius: 50%;
+		background: var(--paper);
+		box-shadow: inset 0 0 0 2px var(--timber);
+		z-index: 1;
+	}
+
+	.ab-day__time {
+		font-size: var(--step-4);
+		line-height: 0.9;
+		letter-spacing: -0.03em;
+	}
+
+	.ab-day__body {
+		display: grid;
+		gap: 10px;
+		align-content: start;
+		padding-top: 0.4em;
+	}
+
+	.ab-day__name {
+		font-size: var(--step-2);
+	}
+
+	.ab-day__body > p {
+		max-width: 38ch;
+		color: color-mix(in oklab, var(--fg) 80%, var(--bg));
+	}
+
+	.ab-day__dishes {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 6px;
+		margin-top: 6px;
+	}
+
+	.ab-day__dishes li {
+		padding: 6px 12px;
+		border-radius: 999px;
+		box-shadow: inset 0 0 0 1px var(--line);
+		font-size: 0.76rem;
+		letter-spacing: 0.04em;
+		transition: background 0.4s, color 0.4s;
+	}
+
+	.ab-day__item:hover .ab-day__dishes li {
+		background: var(--ink);
+		color: var(--paper);
+	}
+
+	/* ---------------------------------------------------------- coffee */
+	.ab-coffee {
+		padding-block: clamp(96px, 12vw, 180px);
+	}
+
+	.ab-coffee__grid {
+		display: grid;
+		grid-template-columns: repeat(12, minmax(0, 1fr));
+		gap: 48px 24px;
+		align-items: center;
+	}
+
+	.ab-coffee__img {
+		grid-column: 1 / span 6;
+		aspect-ratio: 4 / 5;
+		border-radius: clamp(18px, 2vw, 28px);
+		overflow: hidden;
+	}
+
+	.ab-coffee__img :global(picture),
+	.ab-coffee__img :global(img) {
+		width: 100%;
+		height: 116%;
+		margin-top: -8%;
+		object-fit: cover;
+	}
+
+	.ab-coffee__text {
+		grid-column: 8 / -1;
+		display: grid;
+		gap: 24px;
+		justify-items: start;
+	}
+
+	.ab-coffee__eyebrow {
+		color: var(--timber-text);
+	}
+
+	.ab-coffee__title {
+		font-size: var(--step-3);
+	}
+
+	.ab-coffee__list {
+		width: 100%;
+		margin-block: 8px 12px;
+	}
+
+	.ab-coffee__list li {
+		display: flex;
+		align-items: baseline;
+		gap: 12px;
+		padding-block: 12px;
+		border-bottom: 1px solid var(--line);
+	}
+
+	.ab-coffee__dots {
+		flex: 1;
+		border-bottom: 1px dotted color-mix(in oklab, var(--fg) 30%, transparent);
+	}
+
+	/* ------------------------------------------------------------ small */
+	@media (max-width: 860px) {
+		.ab-intro__label,
+		.ab-intro__statement,
+		.ab-values__eyebrow,
+		.ab-values__title,
+		.ab-day__head,
+		.ab-day__list,
+		.ab-coffee__img,
+		.ab-coffee__text {
+			grid-column: 1 / -1;
+		}
+
+		.ab-nums__grid {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+			gap: 32px 0;
+		}
+
+		.ab-nums__item:nth-child(3) {
+			padding-left: 0;
+			border-left: 0;
+		}
+
+		.ab-card {
+			grid-template-columns: 1fr;
+			grid-template-rows: auto 220px;
+			top: calc(80px + var(--i) * 14px);
+			min-height: 0;
+		}
+
+		.ab-card__img {
+			clip-path: polygon(0 14%, 100% 0, 100% 100%, 0 100%);
+		}
+
+		.ab-day__head {
+			position: static;
+		}
+
+		.ab-day__item {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>

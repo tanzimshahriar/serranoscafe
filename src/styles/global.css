@@ -72,6 +72,8 @@
 }
 
 html {
+	/* Backstop: nothing may widen the page on phones and tablets. */
+	overflow-x: clip;
 	-webkit-text-size-adjust: 100%;
 	text-size-adjust: 100%;
 	scroll-padding-top: 88px;
@@ -427,8 +429,125 @@ p {
 	margin: -22px 0 0 -22px;
 }
 
-.cursor.is-hidden {
+.cursor {
+	transition: opacity 0.25s;
+}
+
+.cursor.is-hidden,
+.cursor.is-off {
 	opacity: 0;
+}
+
+/* ------------------------------------------------------ page transitions */
+
+/* Cross-document view transitions: zero JavaScript. The next page slices in along
+   the logo's slash while the old one sinks back. Browsers without support just navigate. */
+@view-transition {
+	navigation: auto;
+}
+
+.nav {
+	view-transition-name: nav;
+}
+
+.actionbar {
+	view-transition-name: actionbar;
+}
+
+::view-transition-old(root) {
+	animation: vt-out 0.9s var(--ease-io) both;
+}
+
+::view-transition-new(root) {
+	animation: vt-in 0.9s var(--ease-io) both;
+}
+
+@keyframes vt-out {
+	to {
+		transform: scale(0.94) translateY(-2%);
+		filter: brightness(0.55);
+	}
+}
+
+@keyframes vt-in {
+	from {
+		clip-path: polygon(100% 0, 130% 0, 130% 100%, 130% 100%);
+	}
+	to {
+		clip-path: polygon(-30% 0, 130% 0, 130% 100%, -30% 100%);
+	}
+}
+
+/* ------------------------------------------------------------ star rows */
+
+.stars {
+	--fill: 100%;
+	position: relative;
+	display: inline-flex;
+	width: max-content;
+	color: var(--timber);
+	line-height: 0;
+}
+
+.stars svg {
+	width: 1em;
+	height: 1em;
+	flex: none;
+}
+
+.stars__base,
+.stars__fill {
+	display: inline-flex;
+	gap: 0.12em;
+}
+
+.stars__base {
+	opacity: 0.22;
+}
+
+.stars__fill {
+	position: absolute;
+	inset: 0;
+	clip-path: inset(0 calc(100% - var(--fill)) 0 0);
+}
+
+/* ------------------------------------------- "where next" page endings */
+
+.next {
+	padding-block: clamp(96px, 14vw, 200px);
+	text-align: center;
+}
+
+.next__eyebrow {
+	color: var(--muted);
+	margin-bottom: 28px;
+}
+
+.next__link {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.2em;
+	font-family: var(--font-display);
+	font-size: var(--step-5);
+	line-height: 0.95;
+	letter-spacing: -0.03em;
+	transition: color 0.5s var(--ease-out);
+}
+
+.next__link .btn__icon {
+	width: 0.45em;
+	height: 0.45em;
+	stroke-width: 1.2;
+	transition: transform 0.6s var(--ease-out);
+}
+
+.next__link:hover,
+.next__link:focus-visible {
+	color: var(--timber-text);
+}
+
+.next__link:hover .btn__icon {
+	transform: translate(0.08em, -0.08em);
 }
 
 /* ---------------------------------------------------------------- motion */
@@ -441,5 +560,10 @@ p {
 		animation-iteration-count: 1 !important;
 		transition-duration: 0.01ms !important;
 		scroll-behavior: auto !important;
+	}
+
+	::view-transition-old(root),
+	::view-transition-new(root) {
+		animation: none;
 	}
 }

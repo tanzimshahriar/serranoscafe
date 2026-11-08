@@ -1,0 +1,38 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import PageHero from '../../components/PageHero.astro';
+import Visit from '../../components/Visit.astro';
+import Order from '../../components/Order.astro';
+import Faq from '../../components/Faq.astro';
+import Marquee from '../../components/Marquee.astro';
+import Explore from '../../components/Explore.astro';
+import Icon from '../../components/Icon.astro';
+import { site } from '../../data/site';
+---
+
+<Layout
+	title={`Visit — ${site.name}, Tarneit Gardens`}
+	description={`Find ${site.name} at ${site.address.street}, ${site.address.centre}, ${site.address.suburb} ${site.address.state}. Opening hours, directions, ordering and answers to common questions.`}
+>
+	<PageHero
+		num="04"
+		label="Visit"
+		lines={['Pull up', 'a chair.']}
+		lede={`${site.address.street}, inside ${site.address.centre}. Open seven days, breakfast through lunch.`}
+		photo="oatMapleLatte"
+		pill="smoothies"
+	>
+		<a class="btn" href={site.mapsUrl} target="_blank" rel="noopener" data-magnetic data-cursor="Map">
+			Get directions <Icon name="arrow" />
+		</a>
+		<a class="btn btn--ghost" href={site.phone.href} data-magnetic>
+			<Icon name="phone" />
+			{site.phone.display}
+		</a>
+	</PageHero>
+	<Visit />
+	<Marquee tone="timber" tilt={1.8} reverse items={['Dine in', 'Pick up', 'Delivered', 'Open 7 days', `Call ${site.phone.display}`]} />
+	<Order />
+	<Faq num="03" />
+	<Explore num="04" exclude="/visit/" />
+</Layout>

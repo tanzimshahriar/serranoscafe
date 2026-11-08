@@ -62,7 +62,7 @@ const lng = `${site.geo.lng.toFixed(4)}° E`;
 
 		<figure class="visit__figure" data-reveal="fade">
 			<div class="visit__img" data-parallax>
-				<Picture
+				<Picture fallbackFormat="webp"
 					src={beans.src}
 					alt={beans.alt}
 					widths={[480, 720, 960, 1280]}

@@ -1,7 +1,7 @@
 ---
 import { Image } from 'astro:assets';
 import Icon from './Icon.astro';
-import { site, formatTime } from '../data/site';
+import { site, formatTime, pages } from '../data/site';
 import { photos, type PhotoKey } from '../data/photos';
 
 const feed: PhotoKey[] = ['smoothies', 'smashedAvo', 'oatMapleLatte', 'biscoffHotcakes', 'bananaIcedChoc'];
@@ -24,7 +24,7 @@ const sun = site.hours[6];
 				feed.map((key, i) => (
 					<li style={`--i:${i}`}>
 						<a href={site.links.instagram} target="_blank" rel="noopener" data-cursor="Follow">
-							<Image
+							<Image quality={70}
 								src={photos[key].src}
 								alt={photos[key].alt}
 								width={360}
@@ -64,6 +64,13 @@ const sun = site.hours[6];
 				<li><a href={site.links.uberEats} target="_blank" rel="noopener">Uber Eats <Icon name="arrow" /></a></li>
 				{site.links.doorDash && <li><a href={site.links.doorDash} target="_blank" rel="noopener">DoorDash <Icon name="arrow" /></a></li>}
 				<li><a href={site.phone.href}>{site.phone.display}</a></li>
+			</ul>
+		</div>
+		<div>
+			<h3 class="mono footer__label">Explore</h3>
+			<ul class="footer__links">
+				<li><a href="/">Home</a></li>
+				{pages.map((page) => <li><a href={page.href}>{page.label}</a></li>)}
 			</ul>
 		</div>
 		<div>
@@ -159,7 +166,7 @@ const sun = site.hours[6];
 
 	.footer__cols {
 		display: grid;
-		grid-template-columns: repeat(4, minmax(0, 1fr));
+		grid-template-columns: repeat(5, minmax(0, 1fr));
 		gap: 32px 24px;
 		margin-top: clamp(80px, 10vw, 140px);
 		padding-top: 32px;

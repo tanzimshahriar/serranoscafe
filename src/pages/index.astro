@@ -5,10 +5,10 @@ import Marquee from '../components/Marquee.astro';
 import Manifesto from '../components/Manifesto.astro';
 import Cut from '../components/Cut.astro';
 import Signatures from '../components/Signatures.astro';
-import Menu from '../components/Menu.astro';
+import Reviews from '../components/Reviews.astro';
+import Explore from '../components/Explore.astro';
 import Order from '../components/Order.astro';
 import Visit from '../components/Visit.astro';
-import Footer from '../components/Footer.astro';
 import { site } from '../data/site';
 ---
 
@@ -20,9 +20,9 @@ import { site } from '../data/site';
 	<Manifesto />
 	<Cut />
 	<Signatures />
-	<Menu />
+	<Reviews num="03" more />
+	<Explore num="04" />
 	<Marquee tone="timber" tilt={1.8} reverse items={['Dine in', 'Pick up', 'Delivered', 'Open 7 days', `Call ${site.phone.display}`]} />
 	<Order />
 	<Visit />
-	<Footer slot="footer" />
 </Layout>

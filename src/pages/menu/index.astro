@@ -1,0 +1,40 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import PageHero from '../../components/PageHero.astro';
+import Menu from '../../components/Menu.astro';
+import Marquee from '../../components/Marquee.astro';
+import Order from '../../components/Order.astro';
+import Icon from '../../components/Icon.astro';
+import { site } from '../../data/site';
+import { menu } from '../../data/menu';
+
+const count = menu.reduce((n, section) => n + section.items.length, 0);
+---
+
+<Layout
+	title={`Menu — ${site.name}, Tarneit`}
+	description={`The full ${site.name} menu: ${count} halal brekkie plates, burgers, salads, sweet stacks, smoothies and specialty coffee, with prices and dietary tags.`}
+>
+	<PageHero
+		num="01"
+		label="Menu"
+		lines={['The whole', 'menu.']}
+		lede={`${count} plates and pours, all 100% halal. Prices in AUD, V for vegetarian, GFO when it can be made gluten-free.`}
+		photo="biscoffHotcakes"
+		pill="smashedAvo"
+	>
+		<a class="btn" href={site.links.uberEats} target="_blank" rel="noopener" data-magnetic data-cursor="Order">
+			Order online <Icon name="arrow" />
+		</a>
+		<a class="btn btn--ghost" href="#menu" data-magnetic>
+			Jump in <Icon name="arrow-down" />
+		</a>
+	</PageHero>
+	<Menu />
+	<Marquee tone="timber" tilt={1.8} reverse items={['Dine in', 'Pick up', 'Delivered', 'Open 7 days', `Call ${site.phone.display}`]} />
+	<Order />
+	<section class="next">
+		<p class="eyebrow next__eyebrow">Next — the people & the beans</p>
+		<a class="next__link" href="/about/" data-cursor="Read">Our story <Icon name="arrow" /></a>
+	</section>
+</Layout>

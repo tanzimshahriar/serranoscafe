@@ -14,7 +14,7 @@ const photo = photos.smashedAvo;
 
 		<div class="cut__window" data-cut-window>
 			<div class="cut__img" data-cut-img>
-				<Picture
+				<Picture fallbackFormat="webp"
 					src={photo.src}
 					alt={photo.alt}
 					widths={[640, 960, 1280, 1600, 2000]}

@@ -98,7 +98,7 @@ onScroll();
 /* ------------------------------------------------------ mobile action bar */
 
 const actionbar = $('[data-actionbar]');
-const heroEl = $('[data-hero]');
+const heroEl = $('[data-hero], [data-page-hero]');
 if (actionbar && heroEl) {
 	new IntersectionObserver(([entry]) => actionbar.classList.toggle('is-visible', !entry.isIntersecting), {
 		rootMargin: '-40% 0px 0px 0px',
@@ -123,6 +123,8 @@ if (motion) {
 	initFooter();
 	initCursor();
 	initMagnetic();
+	initCounters();
+	initStars();
 
 	document.fonts?.ready.then(() => ScrollTrigger.refresh());
 	window.addEventListener('load', () => {
@@ -340,6 +342,14 @@ function initCursor() {
 
 	document.addEventListener('pointerover', (event) => {
 		const el = event.target as HTMLElement;
+		// The nav sits under the cursor layer, so the blob would cover its buttons.
+		// Step aside there and let the buttons' own hover states do the talking.
+		const off = !!el.closest('[data-nav], [data-actionbar]');
+		cursor.classList.toggle('is-off', off);
+		if (off) {
+			cursor.classList.remove('is-label', 'is-hover');
+			return;
+		}
 		const labelled = el.closest<HTMLElement>('[data-cursor]');
 		const interactive = el.closest('a, button');
 		cursor.classList.toggle('is-label', !!labelled);
@@ -361,5 +371,37 @@ function initMagnetic() {
 		el.addEventListener('pointerleave', () => {
 			gsap.to(el, { x: 0, y: 0, duration: 1, ease: 'elastic.out(1, 0.4)', overwrite: true });
 		});
+	});
+}
+
+/** Numbers count up the first time they scroll in. The HTML already holds the final value. */
+function initCounters() {
+	$$('[data-count]').forEach((el) => {
+		const end = parseFloat(el.dataset.count ?? '');
+		if (Number.isNaN(end)) return;
+		const decimals = (el.dataset.count!.split('.')[1] ?? '').length;
+		const state = { v: 0 };
+		el.textContent = (0).toFixed(decimals);
+		gsap.to(state, {
+			v: end,
+			duration: 1.8,
+			ease: 'expo.out',
+			scrollTrigger: { trigger: el, start: 'top 92%', once: true },
+			onUpdate: () => {
+				el.textContent = state.v.toFixed(decimals);
+			},
+		});
+	});
+}
+
+/** Star rows fill left to right to their rating. */
+function initStars() {
+	$$('[data-stars]').forEach((el) => {
+		const fill = getComputedStyle(el).getPropertyValue('--fill').trim();
+		gsap.fromTo(
+			el,
+			{ '--fill': '0%' },
+			{ '--fill': fill, duration: 1.6, ease: 'power3.inOut', scrollTrigger: { trigger: el, start: 'top 92%', once: true } },
+		);
 	});
 }

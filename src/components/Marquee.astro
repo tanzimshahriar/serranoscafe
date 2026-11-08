@@ -11,6 +11,7 @@ const { items, tone = 'ink', tilt = -2.4, reverse = false } = Astro.props;
 const run = [...items, ...items, ...items];
 ---
 
+<div class="marquee-clip">
 <div class:list={['marquee', `theme-${tone}`]} style={`--tilt:${tilt}deg`} data-marquee data-direction={reverse ? -1 : 1}>
 	<p class="sr-only">{items.join(', ')}</p>
 	<div class="marquee__track" aria-hidden="true" data-marquee-track>
@@ -28,8 +29,17 @@ const run = [...items, ...items, ...items];
 		}
 	</div>
 </div>
+</div>
 
 <style>
+	/* The band is wider than the screen and tilted. Clip it sideways here, because mobile
+	   browsers ignore body's clip when sizing the page and would zoom out to fit it. */
+	.marquee-clip {
+		position: relative;
+		z-index: 5;
+		overflow-x: clip;
+	}
+
 	.marquee {
 		position: relative;
 		z-index: 5;

@@ -1,0 +1,174 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import PageHero from '../../components/PageHero.astro';
+import Reviews from '../../components/Reviews.astro';
+import Explore from '../../components/Explore.astro';
+import Icon from '../../components/Icon.astro';
+import { site } from '../../data/site';
+import { google, platforms } from '../../data/reviews';
+---
+
+<Layout
+	title={`Reviews — ${site.name}, Tarneit`}
+	description={`${site.name} is rated ${google.value} on Google and ${site.rating.value} on ${site.rating.source}. Read what people say about our halal brunch and coffee in Tarneit, and leave a review of your own.`}
+>
+	<PageHero
+		num="03"
+		label="Reviews"
+		lines={['Word of', 'mouth.']}
+		lede={`${google.value} on Google, ${site.rating.value} on ${site.rating.source}. Here is what people say once the plates are cleared.`}
+		photo="bananaIcedChoc"
+		pill="biscoffHotcakes"
+	>
+		<a class="btn" href={google.href} target="_blank" rel="noopener" data-magnetic data-cursor="Google">
+			Review us on Google <Icon name="arrow" />
+		</a>
+	</PageHero>
+
+	<Reviews num="01" />
+
+	<section class="rp-pull theme-ink" aria-labelledby="rp-pull-title">
+		<div class="wrap rp-pull__grid">
+			<p class="eyebrow rp-pull__label" data-reveal="fade"><span>(02)</span> If we had to pick one</p>
+			<h2 class="sr-only" id="rp-pull-title">Our favourite review</h2>
+			<figure class="rp-pull__fig">
+				<blockquote class="serif rp-pull__quote" data-scrub-words>
+					“Portions are generous, service is cheerful.”
+				</blockquote>
+				<figcaption class="mono rp-pull__cite">— Satterley’s Bluestone neighbourhood guide to Tarneit</figcaption>
+			</figure>
+		</div>
+	</section>
+
+	<section class="rp-cta theme-timber" aria-labelledby="rp-cta-title">
+		<div class="wrap rp-cta__grid">
+			<header>
+				<p class="eyebrow" data-reveal="fade"><span>(03)</span> Your turn</p>
+				<h2 class="rp-cta__title" id="rp-cta-title">
+					<span data-reveal="lines">Had a good one?</span>
+					<span data-reveal="lines">Tell the West.</span>
+				</h2>
+			</header>
+			<div class="rp-cta__side" data-reveal="fade">
+				<p>
+					A few honest lines help the next hungry person find us, and every one gets read by the team. It takes about
+					thirty seconds.
+				</p>
+				<ol class="rp-cta__list">
+					{
+						platforms.map((p, i) => (
+							<li>
+								<a href={p.href} target="_blank" rel="noopener">
+									<span class="mono">0{i + 1}</span>
+									<span>{p.cta}</span>
+									<Icon name="arrow" />
+								</a>
+							</li>
+						))
+					}
+				</ol>
+			</div>
+		</div>
+	</section>
+
+	<Explore num="04" exclude="/reviews/" />
+</Layout>
+
+<style>
+	.rp-pull {
+		padding-block: clamp(110px, 14vw, 220px);
+	}
+
+	.rp-pull__grid {
+		display: grid;
+		grid-template-columns: repeat(12, minmax(0, 1fr));
+		gap: 24px;
+	}
+
+	.rp-pull__label {
+		grid-column: 1 / span 3;
+		color: var(--timber-2);
+		padding-top: 1em;
+	}
+
+	.rp-pull__fig {
+		grid-column: 4 / -1;
+	}
+
+	.rp-pull__quote {
+		font-size: var(--step-5);
+		line-height: 0.92;
+		letter-spacing: -0.035em;
+	}
+
+	.js:not(.reduced) .rp-pull__quote :global(.split-word) {
+		opacity: 0.14;
+	}
+
+	.rp-pull__cite {
+		margin-top: 36px;
+		font-size: var(--step--1);
+		color: var(--timber-2);
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+	}
+
+	.rp-cta {
+		padding-block: clamp(96px, 12vw, 180px);
+	}
+
+	.rp-cta__grid {
+		display: grid;
+		grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+		gap: 48px clamp(32px, 6vw, 120px);
+		align-items: end;
+	}
+
+	.rp-cta__title {
+		display: flex;
+		flex-direction: column;
+		margin-top: 24px;
+		font-size: var(--step-4);
+	}
+
+	.rp-cta__title span:last-child {
+		font-style: italic;
+	}
+
+	.rp-cta__side p {
+		max-width: 40ch;
+		font-size: var(--step-1);
+		line-height: 1.4;
+	}
+
+	.rp-cta__list {
+		margin-top: 32px;
+		border-top: 1px solid var(--line);
+	}
+
+	.rp-cta__list a {
+		display: grid;
+		grid-template-columns: 40px 1fr auto;
+		align-items: center;
+		gap: 12px;
+		padding-block: 20px;
+		border-bottom: 1px solid var(--line);
+		font-weight: 600;
+		transition: padding 0.6s var(--ease-out);
+	}
+
+	.rp-cta__list a:hover {
+		padding-left: 12px;
+	}
+
+	@media (max-width: 860px) {
+		.rp-pull__label,
+		.rp-pull__fig {
+			grid-column: 1 / -1;
+		}
+
+		.rp-cta__grid {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>

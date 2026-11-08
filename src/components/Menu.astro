@@ -100,7 +100,7 @@ const filters: Tag[] = ['V', 'GFO'];
 								<li class="menu__item" data-tags={(item.tags ?? []).join(' ')} data-photo={item.photo}>
 									<div class="menu__row">
 										{item.photo && (
-											<Image
+											<Image quality={70}
 												class="menu__thumb"
 												src={photos[item.photo as PhotoKey].src}
 												alt=""
@@ -148,7 +148,7 @@ const filters: Tag[] = ['V', 'GFO'];
 		{
 			previewKeys.map((key) => (
 				<div class="menu__preview-img" data-preview={key}>
-					<Image src={photos[key].src} alt="" width={420} height={520} fit="cover" style={`object-position:${photos[key].focus}`} />
+					<Image quality={70} src={photos[key].src} alt="" width={420} height={520} fit="cover" style={`object-position:${photos[key].focus}`} />
 				</div>
 			))
 		}

@@ -1,0 +1,381 @@
+---
+import Icon from './Icon.astro';
+import Stars from './Stars.astro';
+import { google, platforms, quotes } from '../data/reviews';
+
+interface Props {
+	num?: string;
+	/** Home shows a link through to the reviews page. */
+	more?: boolean;
+}
+
+const { num = '04', more = false } = Astro.props;
+const [whole, decimal] = String(google.value!.toFixed(1)).split('.');
+---
+
+<section class="rv" id="reviews" aria-labelledby="rv-title">
+	<div class="wrap rv__grid">
+		<header class="rv__head">
+			<p class="eyebrow rv__eyebrow" data-reveal="fade"><span>({num})</span> Word of mouth</p>
+			<h2 class="rv__title" id="rv-title">
+				<span data-reveal="lines">Rated by</span>
+				<span data-reveal="lines">the West.</span>
+			</h2>
+		</header>
+
+		<div class="rv__score" data-reveal="fade">
+			<p class="rv__big serif">
+				<span class="sr-only">Google rating: {google.value} out of 5</span>
+				<span data-count={google.value!.toFixed(1)} aria-hidden="true">{whole}.{decimal}</span>
+			</p>
+			<div class="rv__score-meta">
+				<Stars value={google.value!} class="rv__stars" />
+				<p class="mono rv__score-label">On Google · {google.count} reviews</p>
+				<a class="btn btn--ghost rv__cta" href={google.href} target="_blank" rel="noopener" data-magnetic data-cursor="Google">
+					{google.cta} <Icon name="arrow" />
+				</a>
+			</div>
+		</div>
+
+		<ul class="rv__platforms" role="list">
+			{
+				platforms.map((p, i) => (
+					<li class="rv__platform" data-reveal="fade" style={`--i:${i}`}>
+						<a href={p.href} target="_blank" rel="noopener">
+							<span class="mono rv__platform-name">{p.name}</span>
+							<span class="rv__platform-value serif">
+								{p.value ? (
+									<>
+										{p.value.toFixed(1)}
+										<small>/5</small>
+									</>
+								) : (
+									<>
+										{p.percent}
+										<small>%</small>
+									</>
+								)}
+							</span>
+							<span class="rv__platform-count">
+								{p.value ? `${p.count} ratings` : `recommend · ${p.count} reviews`}
+							</span>
+							<Icon name="arrow" />
+						</a>
+					</li>
+				))
+			}
+		</ul>
+	</div>
+
+	<div class="rv__strip">
+		<ul class="rv__quotes" role="list" tabindex="0" aria-label="What people say">
+			{
+				quotes.map((q, i) => (
+					<li class="rv__quote" style={`--tilt:${i % 2 ? 1.4 : -1.2}deg`}>
+						<figure>
+							<p class="mono rv__about">{q.about}</p>
+							<blockquote class="serif">
+								<p>“{q.text}”</p>
+							</blockquote>
+							<figcaption>
+								<span>{q.who}</span>
+								<span class="mono">{q.where}</span>
+							</figcaption>
+						</figure>
+					</li>
+				))
+			}
+			{
+				more && (
+					<li class="rv__quote rv__quote--more">
+						<a href="/reviews/">
+							<span class="serif">All the reviews</span>
+							<Icon name="arrow" />
+						</a>
+					</li>
+				)
+			}
+		</ul>
+	</div>
+</section>
+
+<style>
+	.rv {
+		position: relative;
+		padding-block: clamp(96px, 12vw, 180px);
+		background: var(--paper-2);
+		overflow: clip;
+	}
+
+	.rv__grid {
+		display: grid;
+		grid-template-columns: repeat(12, minmax(0, 1fr));
+		gap: 48px 24px;
+		align-items: end;
+	}
+
+	.rv__head {
+		grid-column: 1 / span 6;
+	}
+
+	.rv__eyebrow {
+		color: var(--timber-text);
+		margin-bottom: 24px;
+	}
+
+	.rv__title {
+		display: flex;
+		flex-direction: column;
+		font-size: var(--step-4);
+	}
+
+	.rv__title span:last-child {
+		font-style: italic;
+		padding-left: 0.9em;
+	}
+
+	.rv__score {
+		grid-column: 7 / -1;
+		display: flex;
+		align-items: center;
+		gap: clamp(20px, 3vw, 44px);
+	}
+
+	.rv__big {
+		font-size: clamp(6rem, 2rem + 13vw, 15rem);
+		line-height: 0.8;
+		letter-spacing: -0.06em;
+		font-variant-numeric: tabular-nums;
+	}
+
+	.rv__score-meta {
+		display: grid;
+		gap: 14px;
+		justify-items: start;
+	}
+
+	.rv__score-meta :global(.rv__stars) {
+		font-size: clamp(1.6rem, 1rem + 1.6vw, 2.4rem);
+	}
+
+	.rv__score-label {
+		font-size: var(--step--1);
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		color: var(--muted);
+	}
+
+	.rv__cta {
+		margin-top: 6px;
+		font-size: 0.95rem;
+	}
+
+	.rv__platforms {
+		grid-column: 1 / -1;
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		border-top: 1px solid var(--line);
+	}
+
+	.rv__platform a {
+		position: relative;
+		display: grid;
+		grid-template-columns: 1fr auto;
+		gap: 6px 16px;
+		padding: 28px 24px 28px 0;
+		isolation: isolate;
+		transition: padding 0.6s var(--ease-out), color 0.5s var(--ease-out);
+	}
+
+	.rv__platform + .rv__platform a {
+		padding-left: 24px;
+		border-left: 1px solid var(--line);
+	}
+
+	.rv__platform a::before {
+		content: '';
+		position: absolute;
+		inset: 0;
+		z-index: -1;
+		background: var(--ink);
+		clip-path: polygon(0 100%, 0 100%, 0 100%, 0 100%);
+		transition: clip-path 0.7s var(--ease-out);
+	}
+
+	.rv__platform a:hover {
+		color: var(--paper);
+		padding-left: 28px;
+	}
+
+	.rv__platform a:hover::before {
+		clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+	}
+
+	.rv__platform-name {
+		grid-column: 1 / -1;
+		font-size: var(--step--1);
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+	}
+
+	.rv__platform-value {
+		font-size: var(--step-3);
+		line-height: 1;
+	}
+
+	.rv__platform-value small {
+		font-size: 0.4em;
+		opacity: 0.55;
+		margin-left: 0.1em;
+	}
+
+	.rv__platform-count {
+		grid-column: 1;
+		color: var(--muted);
+		font-size: 0.95rem;
+	}
+
+	.rv__platform a:hover .rv__platform-count {
+		color: color-mix(in oklab, var(--paper) 70%, transparent);
+	}
+
+	.rv__platform :global(.btn__icon) {
+		grid-row: 2;
+		grid-column: 2;
+		align-self: center;
+		width: 1.4em;
+		height: 1.4em;
+	}
+
+	/* Quote cards: a swipeable row of pinned notes. */
+	.rv__strip {
+		margin-top: clamp(56px, 7vw, 100px);
+	}
+
+	.rv__quotes {
+		display: flex;
+		gap: clamp(14px, 1.6vw, 24px);
+		padding: 24px var(--gutter) 32px;
+		overflow-x: auto;
+		scroll-snap-type: x mandatory;
+		scroll-padding-inline: var(--gutter);
+		scrollbar-width: none;
+		overscroll-behavior-x: contain;
+	}
+
+	.rv__quotes::-webkit-scrollbar {
+		display: none;
+	}
+
+	.rv__quote {
+		flex: 0 0 clamp(280px, 30vw, 440px);
+		scroll-snap-align: start;
+		transform: rotate(var(--tilt));
+		transition: transform 0.7s var(--ease-out);
+	}
+
+	.rv__quote:hover {
+		transform: rotate(0deg) translateY(-6px);
+	}
+
+	.rv__quote figure {
+		display: flex;
+		flex-direction: column;
+		gap: 22px;
+		height: 100%;
+		min-height: 300px;
+		padding: clamp(24px, 2.4vw, 36px);
+		background: var(--paper);
+		border-radius: 22px;
+		box-shadow: 0 1px 0 var(--line), 0 30px 60px -40px rgb(20 17 14 / 0.45);
+	}
+
+	.rv__about {
+		align-self: start;
+		padding: 6px 12px;
+		border-radius: 999px;
+		background: var(--ink);
+		color: var(--paper);
+		font-size: 0.72rem;
+		text-transform: uppercase;
+		letter-spacing: 0.1em;
+	}
+
+	.rv__quote blockquote {
+		flex: 1;
+		font-size: var(--step-1);
+		line-height: 1.22;
+		letter-spacing: -0.01em;
+	}
+
+	.rv__quote figcaption {
+		display: flex;
+		justify-content: space-between;
+		gap: 12px;
+		padding-top: 16px;
+		border-top: 1px solid var(--line);
+		font-size: 0.9rem;
+	}
+
+	.rv__quote figcaption .mono {
+		color: var(--timber-text);
+		text-transform: uppercase;
+		font-size: 0.78rem;
+		letter-spacing: 0.08em;
+	}
+
+	.rv__quote--more a {
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		height: 100%;
+		min-height: 300px;
+		padding: clamp(24px, 2.4vw, 36px);
+		border-radius: 22px;
+		background: var(--timber);
+		color: var(--ink);
+		font-size: var(--step-3);
+		line-height: 1;
+	}
+
+	.rv__quote--more :global(.btn__icon) {
+		align-self: end;
+		width: 1.2em;
+		height: 1.2em;
+		stroke-width: 1.3;
+		transition: transform 0.6s var(--ease-out);
+	}
+
+	.rv__quote--more a:hover :global(.btn__icon) {
+		transform: translate(6px, -6px);
+	}
+
+	/* Tablets and small laptops: the heading and the big score need a row each. */
+	@media (max-width: 1280px) {
+		.rv__head,
+		.rv__score {
+			grid-column: 1 / -1;
+		}
+
+		.rv__score {
+			flex-wrap: wrap;
+		}
+	}
+
+	@media (max-width: 860px) {
+
+		.rv__platforms {
+			grid-template-columns: 1fr;
+		}
+
+		.rv__platform + .rv__platform a {
+			padding-left: 0;
+			border-left: 0;
+			border-top: 1px solid var(--line);
+		}
+
+		.rv__quote {
+			flex-basis: 82vw;
+		}
+	}
+</style>

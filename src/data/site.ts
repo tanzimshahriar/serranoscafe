@@ -71,6 +71,12 @@ export const site = {
 
 	rating: { value: '4.8', count: '700+', source: 'Uber Eats' },
 
+	/** Earliest press we could find (Weekend Notes) is from 2016. Change if you opened earlier. */
+	since: '2016',
+
+	/** Roaster whose beans are in the hopper and on the retail shelf. */
+	roaster: 'Roasting Warehouse',
+
 	/** Shown in the footer. Put your studio name here when you hand it over. */
 	credit: '',
 };
@@ -116,3 +122,11 @@ export const formatTime = (hhmm: string) => {
 	const hour = h % 12 || 12;
 	return m ? `${hour}:${String(m).padStart(2, '0')}${suffix}` : `${hour}${suffix}`;
 };
+
+/** Top-level pages. Nav, mobile sheet, footer and the home page index all read from this. */
+export const pages = [
+	{ href: '/menu/', label: 'Menu', blurb: 'Brekkie, burgers, sweet stacks and the whole drinks list', photo: 'smashedAvo' },
+	{ href: '/about/', label: 'Story', blurb: 'The room, the halal promise and the beans in the hopper', photo: 'coffeeBeans' },
+	{ href: '/reviews/', label: 'Reviews', blurb: 'Star ratings from Google, Uber Eats and Facebook, and what people say', photo: 'biscoffHotcakes' },
+	{ href: '/visit/', label: 'Visit', blurb: 'Hours, directions, ordering and your questions answered', photo: 'bananaIcedChoc' },
+] as const;

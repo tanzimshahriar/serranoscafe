@@ -1,0 +1,18 @@
+---
+interface Props {
+	/** Rating out of 5. */
+	value: number;
+	label?: string;
+	class?: string;
+}
+
+const { value, label = `${value} out of 5 stars`, class: className } = Astro.props;
+const fill = `${Math.max(0, Math.min(5, value)) * 20}%`;
+const star = '<path d="M12 2.6l2.9 6 6.5.8-4.8 4.5 1.2 6.5L12 17.2l-5.8 3.2 1.2-6.5L2.6 9.4l6.5-.8z" fill="currentColor"/>';
+const row = Array.from({ length: 5 }, () => `<svg viewBox="0 0 24 24" aria-hidden="true">${star}</svg>`).join('');
+---
+
+<span class:list={['stars', className]} style={`--fill:${fill}`} role="img" aria-label={label} data-stars>
+	<span class="stars__base" set:html={row} />
+	<span class="stars__fill" set:html={row} />
+</span>
