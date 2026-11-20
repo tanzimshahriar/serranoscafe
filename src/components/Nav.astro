@@ -220,6 +220,25 @@ const links = pages.map((page) => ({ ...page, current: path.startsWith(page.href
 		transform: translateY(-3.5px) rotate(calc(90deg - var(--slash)));
 	}
 
+	/* Over the home page's dark hero the bar reads light, until it picks up its scrolled backdrop. */
+	:global(html:has([data-hero])) .nav:not(.is-scrolled) .nav__bar {
+		color: var(--paper);
+	}
+
+	:global(html:has([data-hero])) .nav:not(.is-scrolled) .nav__link span::after {
+		color: var(--timber-2);
+	}
+
+	:global(html:has([data-hero])) .nav:not(.is-scrolled) .nav__cta {
+		--btn-bg: var(--paper);
+		--btn-fg: var(--ink);
+	}
+
+	:global(html:has([data-hero])) .nav:not(.is-scrolled) .nav__burger {
+		background: var(--paper);
+		color: var(--ink);
+	}
+
 	.nav.is-open .nav__bar {
 		background: transparent;
 		box-shadow: none;

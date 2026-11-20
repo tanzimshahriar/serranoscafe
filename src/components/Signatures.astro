@@ -55,7 +55,7 @@ const priceOf = (name: string) => {
 					cards.map((card, i) => (
 						<li class:list={['sig__card', `sig__card--${card.kind}`, card.kind === 'type' && `theme-${card.tone}`]} data-cursor="Taste">
 							{card.kind === 'photo' ? (
-								<div class="sig__media">
+								<div class="sig__media" data-tilt="7">
 									<Picture fallbackFormat="webp"
 										src={photos[card.photo].src}
 										alt={photos[card.photo].alt}
@@ -67,7 +67,7 @@ const priceOf = (name: string) => {
 									/>
 								</div>
 							) : (
-								<div class="sig__type serif" aria-hidden="true">
+								<div class="sig__type serif" aria-hidden="true" data-tilt="9">
 									<span>{card.lines[0]}</span>
 									<i class="sig__type-slash" />
 									<span>{card.lines[1]}</span>
@@ -241,6 +241,20 @@ const priceOf = (name: string) => {
 		box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--paper) 18%, transparent);
 	}
 
+	/* Type cards keep their overflow so the words can lift off the card in 3D while it tilts
+	   under the pointer. At rest everything sits flat and straight. */
+	.sig__type {
+		overflow: visible;
+	}
+
+	.sig__type span {
+		transition: transform 0.7s var(--ease-out);
+	}
+
+	.sig__type.is-tilting span {
+		transform: translateZ(46px);
+	}
+
 	.sig__type span:last-child {
 		align-self: flex-end;
 		text-align: right;
@@ -256,7 +270,7 @@ const priceOf = (name: string) => {
 	}
 
 	.sig__card:hover .sig__type-slash {
-		transform: rotate(calc(var(--slash) + 180deg));
+		transform: translateZ(24px) rotate(calc(var(--slash) + 180deg));
 	}
 
 	.sig__card.theme-timber,

@@ -43,15 +43,26 @@ Everything a cafe owner would want to change lives in four files:
 
 Every inner page opens with the same header: breadcrumb, live open status, a huge two-line headline with a food photo set into it, and a plate cut along the slash. Moving between pages uses a cross-document view transition, so the next page slices in along the slash. It is pure CSS with no router JavaScript, and browsers without support simply navigate.
 
-On every page, mobile gets a floating Call / Menu / Order bar. The short logo intro plays only on a first visit to the home page.
+On every page, mobile gets a floating Call / Menu / Order bar. On phones the home hero fits one screen: wordmark, one-line lede and the two buttons on top, with the photo filling the bottom under a slanted edge.
+
+## The 3D
+
+- **Coffee beans (home hero).** Roasted beans fall in slow motion behind the "serranos cafe" wordmark and bounce off the /. On desktop that wall slides with the cut as you scroll. On phones they land on the photo's slanted top edge and roll off. The pointer pushes them around and a tap knocks them away.
+- **Physics.** Bounces decay with real restitution and friction. Contact uses each bean's actual oriented shape, so beans rock and roll on the edge rather than hovering. Beans at a similar depth knock into each other.
+- **Rendering.** Raw WebGL2 with no library (`src/scripts/beans-scene.ts`, ~6 KB gzipped). The bean is a procedural mesh with an S-shaped crease, drawn with instancing and a product-render material: an oily clear-coat reflecting a studio softbox environment, pale silverskin in the crease, and filmic tone mapping.
+- **Every browser.** In Chrome, Edge, Firefox and Safari 17+ the scene runs in a Web Worker on an `OffscreenCanvas` (`beans-worker.ts`), so the page's main thread only forwards pointer and scroll positions. If a worker has no `requestAnimationFrame`, the page supplies display-synced frames, so motion stays smooth at 60 or 120 Hz. Where a worker can't get WebGL2 at all (Safari 16, older Firefox), the same scene runs on the page instead. Rendering pauses when the hero is off-screen or the tab is hidden, and resolution drops if frames get slow.
+- **No GPU, no beans.** On software renderers (SwiftShader, llvmpipe) the scene bows out and the hero stays static. Lighthouse and PageSpeed run without a GPU, so they score the static hero. Real visitors with a GPU get the beans.
+- **CSS 3D.** Section headings flip up off their baseline. The signature cards sit straight, and on hover they tilt toward the pointer with a moving highlight. The footer words stand up as they arrive.
 
 ## Performance and accessibility
 
-Lighthouse (local production build, Lighthouse 12.6): **Accessibility 100 · Best practices 100 · SEO 100 on every page.** Performance: home 95 mobile / 99 desktop, inner pages 98 mobile / 100 desktop, CLS ≈ 0. On mobile the remaining gap is first paint under Lighthouse's simulated slow 4G (the display font and ~460 ms server response from the local preview server). A CDN host should close most of it.
+Lighthouse 13.6 (local production build): **100 · 100 · 100 · 100 on every page, mobile and desktop.**
 
+- The first script is ~3 KB. GSAP, ScrollTrigger, Lenis and the 3D load only after the hero photo has decoded and painted, then boot one feature per task so no task blocks for long.
+- The hero photo is light from the first paint: a blurred 24px copy is inlined, and the real image fades in over it once decoded.
 - Static HTML with inlined CSS, self-hosted fonts with metric-matched fallbacks, and responsive AVIF/WebP images.
 - The hero intro is pure CSS and touches only transforms and clip-paths, so it never shifts layout.
-- `prefers-reduced-motion` turns off smooth scrolling, pinning and reveals, and the page stays fully usable.
+- `prefers-reduced-motion` turns off smooth scrolling, pinning and reveals, and the beans render as a single still frame. The page stays fully usable.
 - With JavaScript disabled everything is still readable and every link works. If the script fails to boot, the page falls back to its static state after 4 seconds.
 - `CafeOrCoffeeShop` structured data includes the address, geo, hours, order action and the full menu with prices, ready for Google rich results.
 

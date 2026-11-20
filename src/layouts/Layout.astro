@@ -4,7 +4,6 @@ import '../styles/global.css';
 import Nav from '../components/Nav.astro';
 import ActionBar from '../components/ActionBar.astro';
 import Footer from '../components/Footer.astro';
-import Preloader from '../components/Preloader.astro';
 import { site } from '../data/site';
 import { menu } from '../data/menu';
 import { photos } from '../data/photos';
@@ -19,7 +18,6 @@ const {
 	description = site.description,
 } = Astro.props;
 
-const isHome = Astro.url.pathname === '/';
 const canonical = new URL(Astro.url.pathname, Astro.site ?? site.url).href;
 
 const og = await getImage({
@@ -130,12 +128,6 @@ const structuredData = {
 				var d = document.documentElement;
 				d.classList.add('js');
 				if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) d.classList.add('reduced');
-				var seen = false;
-				try {
-					seen = sessionStorage.getItem('serranos:intro') === '1';
-					sessionStorage.setItem('serranos:intro', '1');
-				} catch (e) {}
-				if (!seen && !d.classList.contains('reduced') && location.pathname === '/') d.classList.add('show-loader');
 				// Pinned sections add height after boot, so a restored or #hash scroll lands mid-page.
 				// Start at the top and let the main script travel to any #hash once layout settles.
 				var hash = '';
@@ -158,7 +150,6 @@ const structuredData = {
 	</head>
 	<body>
 		<a class="skip-link" href="#main">Skip to content</a>
-		{isHome && <Preloader />}
 		<Nav />
 		<main id="main" tabindex="-1">
 			<slot />

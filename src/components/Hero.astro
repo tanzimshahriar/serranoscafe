@@ -1,5 +1,7 @@
 ---
 import { Picture } from 'astro:assets';
+import sharp from 'sharp';
+import { join } from 'node:path';
 import Icon from './Icon.astro';
 import Badge from './Badge.astro';
 import { photos } from '../data/photos';
@@ -7,11 +9,19 @@ import { site } from '../data/site';
 
 const hero = photos.biscoffHotcakes;
 
-// The wordmark is drawn twice: ink on the paper side, paper on the photo side.
-// The photo's diagonal clip slices the second copy, so letters change colour exactly on the cut.
+// Blur-up placeholder: a 24px copy of the photo, inlined (~0.5 KB), shown blurred until the real
+// image has decoded. Chrome treats images this low in detail as ineligible for LCP.
+const lqipBuffer = await sharp(join(process.cwd(), 'src/assets/photos/biscoff-hotcakes.jpg'))
+	.resize(24)
+	.webp({ quality: 50 })
+	.toBuffer();
+const lqip = `data:image/webp;base64,${lqipBuffer.toString('base64')}`;
+
+// The wordmark is drawn twice: once on the dark side, once on the photo side.
+// The photo's diagonal clip slices the second copy, so it stays crisp exactly on the cut.
 ---
 
-<section class="hero" data-hero aria-labelledby="hero-title">
+<section class="hero theme-ink" data-hero data-beans aria-labelledby="hero-title">
 	<div class="hero__meta wrap mono" data-hero-fade>
 		<span>Tarneit Gardens, VIC</span>
 		<span class="hero__meta-sep" aria-hidden="true"></span>
@@ -25,11 +35,14 @@ const hero = photos.biscoffHotcakes;
 	</h1>
 
 	<div class="hero__media" data-hero-media>
-		<div class="hero__img" data-hero-img>
+		<div class="hero__img" data-hero-img style={`--lqip:url(${lqip});--focus:${hero.focus}`}>
 			<Picture fallbackFormat="webp"
+				onload="this.closest('.hero__img').classList.add('is-loaded')"
+				onerror="this.closest('.hero__img').classList.add('is-loaded')"
 				src={hero.src}
 				alt={hero.alt}
-				widths={[640, 960, 1280, 1600, 2000]}
+				widths={[480, 640, 800, 1024, 1280, 1600, 2000]}
+				quality={40}
 				sizes="(max-width: 860px) 100vw, 90vw"
 				formats={['avif', 'webp']}
 				loading="eager"
@@ -52,13 +65,9 @@ const hero = photos.biscoffHotcakes;
 	<div class="hero__foot wrap">
 		<div class="hero__copy" data-hero-fade>
 			<p class="hero__lede serif">Brunch,<br /> a cut above.</p>
-			<p class="hero__text">
-				A 100% halal cafe inside Tarneit Gardens. Slow-cooked brisket, sujuk shakshuka, Biscoff everything and coffee
-				worth the detour.
-			</p>
 		</div>
 		<div class="hero__ctas" data-hero-fade>
-			<a class="btn" href={site.links.uberEats} target="_blank" rel="noopener" data-magnetic data-cursor="Order">
+			<a class="btn btn--light" href={site.links.uberEats} target="_blank" rel="noopener" data-magnetic data-cursor="Order">
 				Order online <Icon name="arrow" />
 			</a>
 			<a class="btn btn--ghost" href="/menu/" data-magnetic>
@@ -92,16 +101,14 @@ const hero = photos.biscoffHotcakes;
 		--cut: calc(var(--c) * 1%);
 		--cut-x: calc(var(--c) * 1cqw);
 		--d: 0.15s;
+		/* Dark hero: --muted is resolved on :root, so re-mix it here for the ink background (AA). */
+		--muted: color-mix(in oklab, var(--paper) 68%, var(--ink));
 		container-type: inline-size;
 		position: relative;
 		height: var(--h);
 		overflow: clip;
 		isolation: isolate;
 		animation: hero-cut 1.6s var(--ease-out) var(--d) both;
-	}
-
-	:global(.show-loader) .hero {
-		--d: 1.2s;
 	}
 
 	/* --------------------------------------------- intro, all in CSS */
@@ -122,12 +129,6 @@ const hero = photos.biscoffHotcakes;
 		from {
 			opacity: 0;
 			transform: translateY(24px);
-		}
-	}
-
-	@keyframes hero-zoom {
-		from {
-			transform: scale(1.3);
 		}
 	}
 
@@ -163,12 +164,29 @@ const hero = photos.biscoffHotcakes;
 		animation-delay: calc(var(--d) + 0.7s);
 	}
 
+	/* The photo eases in only once it has actually decoded (the onload hook adds .is-loaded),
+	   over a blurred placeholder, so it never pops in mid-animation. Without JS it just shows. */
 	.hero__img :global(picture) {
-		animation: hero-zoom 2.2s var(--ease-out) var(--d) both;
+		position: relative;
+	}
+
+	:global(.js) .hero__img :global(img) {
+		opacity: 0;
+		scale: 1.12;
+		transition:
+			opacity 1s var(--ease-out),
+			scale 2.4s var(--ease-out);
+	}
+
+	:global(.js) .hero__img.is-loaded :global(img),
+	:global(.reduced) .hero__img :global(img) {
+		opacity: 1;
+		scale: 1;
 	}
 
 	.hero__meta {
 		position: absolute;
+		z-index: 1;
 		top: clamp(84px, 11vh, 120px);
 		left: 0;
 		display: flex;
@@ -229,6 +247,16 @@ const hero = photos.biscoffHotcakes;
 		position: absolute;
 		inset: 0 0 0 10%;
 		overflow: hidden;
+	}
+
+	/* The plate side is light from the very first paint: a blurred 24px copy of the photo, inlined,
+	   sits under the real image until it arrives. */
+	.hero__img::before {
+		content: '';
+		position: absolute;
+		inset: -6%;
+		background: var(--lqip) var(--focus, 50% 50%) / cover no-repeat;
+		filter: blur(22px) saturate(1.15);
 	}
 
 	/* A shadow that hugs the cut, so the paper-coloured letters stay legible over the photo. */
@@ -298,7 +326,7 @@ const hero = photos.biscoffHotcakes;
 		translate: calc(var(--cut-x) - var(--off) / 2) 0;
 		z-index: 3;
 		width: 1.5px;
-		background: var(--ink);
+		background: var(--paper);
 		transform: translateX(-14px) rotate(var(--slash));
 		transform-origin: 50% 50%;
 		pointer-events: none;
@@ -325,11 +353,6 @@ const hero = photos.biscoffHotcakes;
 	.hero__lede {
 		font-size: var(--step-2);
 		line-height: 1.05;
-	}
-
-	.hero__text {
-		color: var(--muted);
-		max-width: 34ch;
 	}
 
 	.hero__ctas {
@@ -371,21 +394,17 @@ const hero = photos.biscoffHotcakes;
 		animation: hero-spin-in 1.4s var(--ease-out) calc(var(--d) + 0.7s) both;
 	}
 
-	/* Short laptop screens: keep the wordmark and the actions, lose the paragraph. */
-	@media (min-width: 861px) and (max-height: 780px) {
-		.hero__text {
-			display: none;
-		}
-	}
-
+	/* Phones and small tablets: the whole hero fits one screen. Wordmark and actions on top, the
+	   photo filling the bottom under a slanted edge, the same / the beans bounce off on desktop. */
 	@media (max-width: 860px) {
 		.hero {
-			--h: auto;
-			height: auto;
+			--h: max(100svh, 560px);
+			/* How far the photo's top edge rises from left to right (beans.ts reads 0.36 × width). */
+			--rise: 36vw;
+			height: var(--h);
 			display: flex;
 			flex-direction: column;
-			padding-top: 84px;
-			padding-bottom: 112px;
+			padding-top: 80px;
 		}
 
 		.hero__meta,
@@ -397,12 +416,14 @@ const hero = photos.biscoffHotcakes;
 
 		.hero__meta {
 			order: 1;
+			gap: 10px;
+			font-size: 0.7rem;
 		}
 
 		.hero__title {
 			order: 2;
-			margin-top: 18px;
-			font-size: clamp(3.6rem, 21.5vw, 9rem);
+			margin-top: clamp(8px, 1.6svh, 18px);
+			font-size: clamp(3.2rem, min(21.5vw, 10.5svh), 9rem);
 		}
 
 		.hero__line--2 {
@@ -410,48 +431,69 @@ const hero = photos.biscoffHotcakes;
 			text-align: right;
 		}
 
-		.hero__media {
+		.hero__foot {
 			order: 3;
-			position: relative;
-			inset: auto;
-			height: min(118vw, 560px);
-			margin: 10px var(--gutter) 0;
-			clip-path: polygon(16% 0, 100% 0, 84% 100%, 0 100%);
-			animation: hero-cut-mobile 1.3s var(--ease-io) calc(var(--d) + 0.2s) both;
+			width: 100%;
+			gap: clamp(10px, 1.6svh, 16px);
+			margin-top: clamp(10px, 2svh, 22px);
 		}
 
-		@keyframes hero-cut-mobile {
+		.hero__lede {
+			font-size: clamp(1.2rem, 5.4vw, 1.6rem);
+		}
+
+		.hero__lede br,
+		.hero__rating,
+		.hero__caption,
+		.hero__title--ghost,
+		.hero__edge,
+		.hero__media::before,
+		.hero :global(.hero__badge) {
+			display: none;
+		}
+
+		.hero__ctas {
+			flex-wrap: nowrap;
+		}
+
+		.hero__ctas :global(.btn) {
+			flex: 1 1 0;
+			justify-content: center;
+			padding: 0.95em 1em;
+			font-size: 0.95rem;
+		}
+
+		.hero__media {
+			order: 4;
+			position: relative;
+			inset: auto;
+			flex: 1 1 auto;
+			min-height: 30svh;
+			margin-top: clamp(14px, 2.4svh, 28px);
+			clip-path: polygon(0 var(--rise), 100% 0, 100% 100%, 0 100%);
+			animation: hero-plate-rise 1.3s var(--ease-io) calc(var(--d) + 0.15s) both;
+		}
+
+		@keyframes hero-plate-rise {
 			from {
-				clip-path: polygon(16% 0, 16% 0, 0 100%, 0 100%);
+				clip-path: polygon(0 100%, 100% 100%, 100% 100%, 0 100%);
 			}
 		}
 
 		.hero__img {
 			inset: 0;
 		}
+	}
 
-		.hero__title--ghost,
-		.hero__edge,
-		.hero__media::before {
-			display: none;
+	/* Very short screens (landscape phones): let the hero scroll rather than squash it. */
+	@media (max-width: 860px) and (max-height: 520px) {
+		.hero {
+			--h: auto;
 		}
 
-		.hero__caption {
-			right: 20%;
-			bottom: 18px;
-		}
-
-		.hero__foot {
-			order: 4;
-			width: 100%;
-			margin-top: 28px;
-		}
-
-		.hero :global(.hero__badge) {
-			top: auto;
-			left: auto;
-			right: var(--gutter);
-			display: none;
+		.hero__media {
+			flex: none;
+			height: 70vh;
 		}
 	}
 </style>
